@@ -97,6 +97,8 @@ plotgd( gd, flux_arr, freq_arr, 'flux')
 #%%
 fig, ax = plt.subplots(1)
 plotSjk(freq_arr, S11_arr[400])
+fig, ax = plt.subplots(1)
+plotSjk(freq_arr, S11_arr[555])
 
 
 #%%
