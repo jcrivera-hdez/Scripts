@@ -110,6 +110,10 @@ nr_pump_pwr = len(pump_pwr_arr)
 nr_bias = len(bias_arr) 
 bias_ind = 19
 
+# # USB data normalized to reference
+# usb_norm_arr = np.abs(usb_arr[1:]**2)/np.abs(usb_arr[0]**2)
+# gain_norm_arr = dB(usb_norm_arr)
+
 # Gain normalised
 gain_ref = dB(usb_arr[0])
 gain_arr = dB(usb_arr[1:])  - gain_ref
