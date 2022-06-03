@@ -260,9 +260,9 @@ def disconnect_vna(verbose=False):
 f_start = 3.5
 f_stop = 8
 intbw = 1e3
-f_delta = 1e+6
+f_delta = 45e+3
 Navg = 10
-p_in = -43
+p_in = -30
 Npts = int((f_stop * 1e+9 - f_start * 1e+9) / f_delta)
 
 
