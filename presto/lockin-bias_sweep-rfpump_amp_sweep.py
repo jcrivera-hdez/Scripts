@@ -118,7 +118,7 @@ dither = True
 # DC bias values in Volts
 bias_min = 1.45
 bias_max = 1.53
-nr_bias = 46
+nr_bias = 101
 bias_arr = np.linspace( bias_min, bias_max, nr_bias )
 
 
@@ -126,9 +126,9 @@ bias_arr = np.linspace( bias_min, bias_max, nr_bias )
 # NCO frequency
 fNCO = 4.2e9
 # Bandwidth in Hz
-df = 250e3
+df = 15e3
 # Number of pixels
-Npix = 50
+Npix = 100
 # Number pf pixels we discard
 Nskip = 10
 
@@ -164,7 +164,7 @@ with lockin.Lockin( address = ADDRESS,
     print("Presto version: " + presto.__version__)
     
     # Set measurement comb
-    fs_center = fp/2
+    fs_center = fp/2.
     # tune center frequency
     fs_center, df = lck.tune( fs_center, df )
     fs_span = (200e6 / 2) // df * 2 * df
