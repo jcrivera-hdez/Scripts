@@ -1,0 +1,925 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DataModule.data_table &mdash; DataModule 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DataModule
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodule.html">DataModule</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DataModule</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>DataModule.data_table</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DataModule.data_table</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Data_table class which is the base for the other data types like data_line,</span>
+<span class="sd">data_complex and data_IQ. The idea is adapted from holoviews (holoviews.org)</span>
+<span class="sd">and builds on pandas as excellent data processing tool.</span>
+
+<span class="sd">Author: Christian Schneider &lt;c.schneider@uibk.ac.at&gt;</span>
+<span class="sd">Date: 16.03.2018</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">data_module_base</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">.plot_style</span> <span class="k">import</span> <span class="n">color_scheme</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="n">check_color</span><span class="p">,</span> <span class="n">color_labels</span>
+<span class="kn">import</span> <span class="nn">holoviews</span> <span class="k">as</span> <span class="nn">hv</span>
+<span class="kn">import</span> <span class="nn">holoviews.operation.datashader</span> <span class="k">as</span> <span class="nn">hd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">bokeh.plotting</span> <span class="k">as</span> <span class="nn">bp</span>
+<span class="kn">from</span> <span class="nn">bokeh.models</span> <span class="k">import</span> <span class="n">HoverTool</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">sp_opt</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sp_sig</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">sp_intp</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+
+
+<span class="n">hv</span><span class="o">.</span><span class="n">extension</span><span class="p">(</span><span class="s1">&#39;bokeh&#39;</span><span class="p">,</span> <span class="n">logo</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="data_table"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table">[docs]</a><span class="k">class</span> <span class="nc">data_table</span><span class="p">(</span><span class="n">data_module_base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for table like data with one or more independent variables and</span>
+<span class="sd">    one or more dependent variables</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    data_arrays : list, array, np.array</span>
+<span class="sd">        Data to save. Format should be</span>
+<span class="sd">        [array_x, array_y, array_z, ...]</span>
+<span class="sd">    data_names : list, array, np.array</span>
+<span class="sd">        Labels for the data. Format should be</span>
+<span class="sd">        [&#39;Label first axis&#39;, &#39;Label second axis&#39;, ...]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_arrays</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Create default data and names</span>
+        <span class="k">if</span> <span class="n">data_arrays</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_arrays</span> <span class="o">=</span> <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]]</span>
+        <span class="n">df_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">)]</span>
+        <span class="n">df_names</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;x</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">))]</span>
+
+        <span class="c1"># Replace default names by the names given</span>
+        <span class="k">if</span> <span class="n">data_names</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_names</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">data_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="n">df_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="c1"># Create dictionary for pandas dataframe</span>
+        <span class="n">tmp_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">):</span>
+            <span class="n">tmp_dict</span><span class="p">[</span><span class="n">df_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">data_arrays</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="c1"># Create dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">tmp_dict</span><span class="p">)</span>
+
+        <span class="c1"># Create easy access variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">df_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">df_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Create further variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_labeles</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Order dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">df_names</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show pandas dataframe as default representation&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;h3&gt;data_table&lt;/h3&gt;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">to_html</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">return_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">return_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_smoothed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Return smoothed data</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_smoothed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_x</span><span class="p">()</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_y</span><span class="p">()</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="data_table.rename_x"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.rename_x">[docs]</a>    <span class="k">def</span> <span class="nf">rename_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rename x variable&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">:</span> <span class="n">new_name</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">new_name</span></div>
+
+<div class="viewcode-block" id="data_table.rename_y"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.rename_y">[docs]</a>    <span class="k">def</span> <span class="nf">rename_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rename y variable&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">:</span> <span class="n">new_name</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">new_name</span></div>
+
+    <span class="k">def</span> <span class="nf">rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">new_column_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="p">{</span><span class="n">column_name</span><span class="p">:</span> <span class="n">new_column_name</span><span class="p">})</span>
+
+<div class="viewcode-block" id="data_table.add_column"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.add_column">[docs]</a>    <span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new column to the dataframe. New Column has to be equal or</span>
+<span class="sd">        shorter then first column (independent variable)</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        column : list, array</span>
+<span class="sd">            New column to add</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name for column</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">column</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_table.import_data"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.import_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_arrays</span><span class="p">,</span> <span class="n">data_names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Import data from new array. Naming highly recommended!</span>
+<span class="sd">        Assumes first given array is the array of the independent variable.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        data_arrays : list, array, np.array</span>
+<span class="sd">            List of data arrays. Structure</span>
+<span class="sd">            [[x, x, x, x, ....], [y, y, y,....], [z, z, z, z, ...]</span>
+<span class="sd">        data_names : list, array, np.array, None</span>
+<span class="sd">            List of names for arrays:</span>
+<span class="sd">            [&#39;x&#39;, &#39;y&#39;, &#39;Resistances&#39;, ... ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_names</span><span class="p">:</span>
+            <span class="n">order_names</span> <span class="o">=</span> <span class="n">data_names</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">order_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+
+        <span class="c1"># Check if column/dependent variable already exists, if not --&gt; create</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">d_name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">order_names</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                               <span class="n">order_names</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="k">if</span> <span class="n">d_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">data_arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                    <span class="c1"># Quick check: If independent variable is the same as</span>
+                    <span class="c1"># already given, just add new column</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">d_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_arrays</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Fill existing array with np.nan</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">d_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                       <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))]</span>
+
+        <span class="c1"># Add values if not already added</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="n">data_arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="c1"># Check if value for independent variable already exists</span>
+            <span class="n">df_idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">d</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">df_idxs</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">df_idx</span> <span class="o">=</span> <span class="n">df_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># take first element</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">df_idx</span><span class="p">]):</span>
+                        <span class="c1"># TODO Is running double if added above --&gt; change</span>
+                        <span class="c1"># Check if entry is np.nan, if not use mean</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">df_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">data_arrays</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">df_idx</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">2</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Else just take new value</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">order_names</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">df_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_arrays</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span>
+                                          <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">order_names</span><span class="p">,</span> <span class="n">data_arrays</span><span class="p">)},</span>
+                                         <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="data_table.plot_hv"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.plot_hv">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot table with Holoviews</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x : None, str, list</span>
+<span class="sd">            Column name(s) used for x axis</span>
+<span class="sd">        y : None, str, list</span>
+<span class="sd">            Column name(s) used for y axis</span>
+<span class="sd">        height : int</span>
+<span class="sd">            Height of plot in pixels</span>
+<span class="sd">        width : int</span>
+<span class="sd">            Width of plot in pixels</span>
+<span class="sd">        title : str</span>
+<span class="sd">            Title of plot</span>
+<span class="sd">        color : str</span>
+<span class="sd">            Color for plot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_val</span> <span class="o">=</span> <span class="n">x</span>
+
+        <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_val</span> <span class="o">=</span> <span class="n">y</span>
+
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">color_scheme</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">cc</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">cc</span><span class="p">[</span><span class="n">color</span><span class="p">]</span>
+
+        <span class="c1"># Plot</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">],</span>
+                       <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">scatter_plots</span> <span class="o">=</span> <span class="n">hd</span><span class="o">.</span><span class="n">dynspread</span><span class="p">(</span><span class="n">hd</span><span class="o">.</span><span class="n">datashade</span><span class="p">(</span><span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="p">[</span><span class="n">color</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">scatter_plots</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                                            <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+    <span class="c1"># Plotting #################################################################</span>
+<div class="viewcode-block" id="data_table.plot"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">x_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+             <span class="n">yscale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+             <span class="n">plot_fit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+             <span class="n">fit_linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">plot_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">legend_pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">fitcolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">fit_on_top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot data and optionally the fit.</span>
+
+<span class="sd">        Choose between two plot-engines: &#39;bokeh&#39; and &#39;pyplot&#39;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        style : str</span>
+<span class="sd">            Specify plot style in matplotlib language. E.g. &#39;b-o&#39; for</span>
+<span class="sd">            blue dots connected with a line.</span>
+<span class="sd">        x_col : str, None</span>
+<span class="sd">            Name of column for plot on x axis. If none is given, first column is</span>
+<span class="sd">            taken</span>
+<span class="sd">        y_col : str, None</span>
+<span class="sd">            Name of column for plot on y axis. If none is given, second column</span>
+<span class="sd">            is taken</span>
+<span class="sd">        color : str</span>
+<span class="sd">            Color shortcut (eg. &#39;b&#39;) or specific color like &#39;#123456&#39;.</span>
+<span class="sd">            Type cc to see available colors.</span>
+<span class="sd">        xscale : float</span>
+<span class="sd">            X scaling</span>
+<span class="sd">        yscale : float</span>
+<span class="sd">            Y scaling</span>
+<span class="sd">        plot_fit : bool</span>
+<span class="sd">            Plot the fit if available</span>
+<span class="sd">        linewidth : int</span>
+<span class="sd">            Thickness of lines</span>
+<span class="sd">        markersize : int</span>
+<span class="sd">            Size of markers</span>
+<span class="sd">        fit_linewidth : int</span>
+<span class="sd">            Thickness of fit line</span>
+<span class="sd">        plot_errors : bool</span>
+<span class="sd">            Plot error bars</span>
+<span class="sd">        legend : list</span>
+<span class="sd">            Custom legend for plot [&#39;Label 1&#39;, &#39;Label 2&#39;]]</span>
+<span class="sd">        legend_pos : int, str</span>
+<span class="sd">            Location of legend</span>
+<span class="sd">        engine : str</span>
+<span class="sd">            Plot engine. Choose between &#39;bokeh&#39; and &#39;pyplot&#39;</span>
+<span class="sd">        title : str</span>
+<span class="sd">            Title of the plot</span>
+<span class="sd">        show : bool</span>
+<span class="sd">            Directly show plot. Useful if one wants to add labels etc.</span>
+<span class="sd">            and show plot afterwards.</span>
+<span class="sd">        fig : object</span>
+<span class="sd">            Figure to plot into (bokeh/matplotlib figure object)</span>
+<span class="sd">        fitcolor : str</span>
+<span class="sd">            Color shortcut (like &#39;b&#39;) or specific color (like #123456) for</span>
+<span class="sd">            fit</span>
+<span class="sd">        fit_on_top : bool</span>
+<span class="sd">            Data over fit or fit over data</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        object</span>
+<span class="sd">            Returns a fit object for bokeh or matplotlib. This is useful, if</span>
+<span class="sd">            you want to add for example another points, lines, labels, etc</span>
+<span class="sd">            afterwards.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get default data or specified columns</span>
+        <span class="k">if</span> <span class="n">x_col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span>
+        <span class="k">if</span> <span class="n">y_col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_smoothed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">y_col</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_smoothed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">x_col</span><span class="p">])[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">y_col</span><span class="p">])[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+
+        <span class="c1"># Check for default plot engine</span>
+        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5000</span><span class="p">:</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>  <span class="c1"># Use holoviews for large data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>  <span class="c1"># Use bokeh for small data</span>
+
+        <span class="c1"># Don&#39;t show plot if figure is given (normally one does not need this)</span>
+        <span class="k">if</span> <span class="n">fig</span><span class="p">:</span>
+            <span class="n">show</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Get fit function</span>
+        <span class="k">if</span> <span class="n">plot_fit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span><span class="p">:</span>
+            <span class="n">exec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_function_code</span><span class="p">)</span>
+            <span class="n">possibles</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">possibles</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+            <span class="n">fitfunc</span> <span class="o">=</span> <span class="n">possibles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_function</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fitfunc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Method </span><span class="si">%s</span><span class="s1"> not implemented&#39;</span> <span class="o">%</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_fit_function</span><span class="p">)</span>
+
+        <span class="c1"># Check for color specified in style</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">check_color</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">color_labels</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">cc</span><span class="p">[</span><span class="n">color</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">color</span>
+
+        <span class="c1"># Bokeh</span>
+        <span class="k">if</span> <span class="n">engine</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bokeh&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]:</span>
+            <span class="c1"># Create Figure if no figure is given</span>
+            <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tools</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;box_zoom&#39;</span><span class="p">,</span> <span class="s1">&#39;pan&#39;</span><span class="p">,</span> <span class="s1">&#39;wheel_zoom&#39;</span><span class="p">,</span> <span class="s1">&#39;reset&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;hover&#39;</span><span class="p">]</span>
+                <span class="n">fig</span> <span class="o">=</span> <span class="n">bp</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plot_width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span>
+                                <span class="n">toolbar_location</span><span class="o">=</span><span class="s1">&#39;above&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+
+            <span class="c1"># Empty legend if no legend is given</span>
+            <span class="k">if</span> <span class="n">legend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">legend</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="c1"># Plot Data</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Errors&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span>
+                    <span class="n">plot_errors</span><span class="p">):</span>
+                <span class="c1"># Just plot dots if error bars given</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fill_color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                           <span class="n">size</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="n">err_xs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">err_ys</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">errs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span> <span class="o">+</span> <span class="s1">&#39; Errors&#39;</span><span class="p">][</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">yerr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">errs</span><span class="p">):</span>
+                    <span class="n">err_xs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+                    <span class="n">err_ys</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ys</span> <span class="o">-</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">ys</span> <span class="o">+</span> <span class="n">yerr</span><span class="p">))</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">multi_line</span><span class="p">(</span><span class="n">err_xs</span><span class="p">,</span> <span class="n">err_ys</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">style</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">kw</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+                        <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">yscale</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                                 <span class="n">line_width</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">kw</span> <span class="o">==</span> <span class="s1">&#39;o&#39;</span><span class="p">:</span>
+                        <span class="n">fig</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fill_color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                                   <span class="n">size</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Plot Fit</span>
+            <span class="k">if</span> <span class="n">plot_fit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span><span class="p">:</span>
+                <span class="c1"># Get color</span>
+                <span class="k">if</span> <span class="n">fitcolor</span> <span class="ow">in</span> <span class="n">color_labels</span><span class="p">:</span>
+                    <span class="n">fc</span> <span class="o">=</span> <span class="n">cc</span><span class="p">[</span><span class="n">fitcolor</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fc</span> <span class="o">=</span> <span class="n">fitcolor</span>
+                <span class="c1"># Plot fit</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">,</span> <span class="n">fitfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_parameters</span><span class="p">)</span> <span class="o">*</span> <span class="n">yscale</span><span class="p">,</span>
+                         <span class="n">line_color</span><span class="o">=</span><span class="n">fc</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="n">fit_linewidth</span><span class="p">)</span>
+
+            <span class="c1"># Format nicer HoverTool</span>
+            <span class="n">tooltips</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x_col</span><span class="p">,</span> <span class="s2">&quot;$x&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">y_col</span><span class="p">,</span> <span class="s2">&quot;$y&quot;</span><span class="p">)]</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">HoverTool</span><span class="p">))</span><span class="o">.</span><span class="n">tooltips</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">tooltips</span><span class="p">)</span>
+
+            <span class="c1"># Add labels</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">x_col</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">y_col</span>
+
+            <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+                <span class="n">bp</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fig</span>
+
+        <span class="c1"># Matplotlib</span>
+        <span class="k">elif</span> <span class="n">engine</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;pyplot&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fig</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="c1"># Plot errors</span>
+            <span class="c1"># Data</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">plot_errors</span> <span class="ow">and</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Errors&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span> <span class="ow">in</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">yerrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span> <span class="o">+</span> <span class="s1">&#39; Errors&#39;</span><span class="p">][</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">])</span> <span class="o">*</span> <span class="n">yscale</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">yscale</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                             <span class="n">yerr</span><span class="o">=</span><span class="n">yerrs</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">yscale</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                         <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Fit</span>
+            <span class="k">if</span> <span class="n">plot_fit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">fit_on_top</span><span class="p">:</span>
+                    <span class="n">fit_zorder</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fit_zorder</span> <span class="o">=</span> <span class="mi">99</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">,</span> <span class="n">fitfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_parameters</span><span class="p">)</span> <span class="o">*</span> <span class="n">yscale</span><span class="p">,</span>
+                         <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">fitcolor</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">fit_linewidth</span><span class="p">,</span>
+                         <span class="n">zorder</span><span class="o">=</span><span class="n">fit_zorder</span><span class="p">)</span>
+
+            <span class="c1"># Labels</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x_col</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y_col</span><span class="p">)</span>
+            <span class="c1"># Styling</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xscale</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">engine</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;holoviews&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;hv&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_hv</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_table.plot_all"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.plot_all">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fast plot of the whole data in holoviews&quot;&quot;&quot;</span>
+
+        <span class="c1"># Get default colormap</span>
+        <span class="k">if</span> <span class="n">colormap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">colormap</span> <span class="o">=</span> <span class="n">color_scheme</span>
+
+        <span class="c1"># Get columns</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="c1"># Create dots of the first point for legend (bug in holoviews)</span>
+        <span class="n">color_points</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">NdOverlay</span><span class="p">({</span><span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                                         <span class="n">hv</span><span class="o">.</span><span class="n">Points</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="mi">0</span><span class="p">]]],</span>
+                                                   <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                                    <span class="o">.</span><span class="n">opts</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">colormap</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">))})</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">color_points</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">colormap</span><span class="p">):</span>
+            <span class="n">plot</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_hv</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plot</span></div>
+
+<div class="viewcode-block" id="data_table.fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fitfunc</span><span class="p">,</span> <span class="n">fit_p_init</span><span class="p">,</span> <span class="n">boundaries</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">plot_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fit `fitfunc` to data with initial fit parameters `fit_p_init`</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            After the fit, the data module will contain the fit, however it</span>
+<span class="sd">            should be saved again. Don&#39;t forget this.</span>
+
+<span class="sd">            The fit will be performed on the stored data, not the plotted</span>
+<span class="sd">            one. If you use xscale or yscale different than the one you</span>
+<span class="sd">            plot, you should take it into account</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        fitfunc : func</span>
+<span class="sd">            Function to fit to. There exist already some functions in the</span>
+<span class="sd">            DataModule library (DataModule/fit_functions)</span>
+<span class="sd">        fit_p_init : list</span>
+<span class="sd">            Initial (guessed) parameters</span>
+<span class="sd">        plot : bool</span>
+<span class="sd">            Plot fit after result</span>
+<span class="sd">        plot_init : bool</span>
+<span class="sd">            Plot initial guess.</span>
+<span class="sd">        plot_params : bool</span>
+<span class="sd">            Print paramaters for fit</span>
+<span class="sd">        labels : list</span>
+<span class="sd">            Label for fitparameters. E.g. [&#39;offset&#39;, &#39;amplitude&#39;, &#39;fr&#39;]</span>
+<span class="sd">        **kwargs : keywords</span>
+<span class="sd">            Keywords for fitfunction like maxfev=10000, epsfcn=1e-10,</span>
+<span class="sd">            factor=0.1, xtol=1e-9, ftol=1e-9...</span>
+
+<span class="sd">        At the end of the fit the data module will contain the function</span>
+<span class="sd">        used to fit and some fit-related functions will be enabled.</span>
+<span class="sd">        The fit parameters are stored in</span>
+<span class="sd">        self._fit_parameters, self._fit_par_errors</span>
+<span class="sd">        and the average error (sigma) in self._fit_data_error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        list, list, float</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xsel</span><span class="p">,</span> <span class="n">ysel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_x</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_y</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fit_p_fit</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sp_opt</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span><span class="n">fitfunc</span><span class="p">,</span> <span class="n">xsel</span><span class="p">,</span> <span class="n">ysel</span><span class="p">,</span> <span class="n">fit_p_init</span><span class="p">,</span>
+                                              <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;At least one fit did not converge&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">fit_p_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fit_p_init</span><span class="p">])</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fit_p_init</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">fit_p_init</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="c1"># Just use bokeh since we don&#39;t want to publish this plot</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">bp</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Fit&#39;</span><span class="p">,</span> <span class="n">plot_width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">plot_init</span><span class="p">:</span>
+                <span class="c1"># Plot initial parameter guess, fit and data</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">xsel</span><span class="p">,</span> <span class="n">fitfunc</span><span class="p">(</span><span class="n">xsel</span><span class="p">,</span> <span class="o">*</span><span class="n">fit_p_init</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">],</span>
+                         <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;Init guess&#39;</span><span class="p">)</span>
+
+            <span class="n">fig</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">xsel</span><span class="p">,</span> <span class="n">ysel</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">xsel</span><span class="p">,</span> <span class="n">fitfunc</span><span class="p">(</span><span class="n">xsel</span><span class="p">,</span> <span class="o">*</span><span class="n">fit_p_fit</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">],</span>
+                     <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;Fit&#39;</span><span class="p">)</span>
+            <span class="n">bp</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+        <span class="c1"># Save fitfunction as string</span>
+        <span class="kn">import</span> <span class="nn">inspect</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsourcelines</span><span class="p">(</span><span class="n">fitfunc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_function</span> <span class="o">=</span> <span class="n">fitfunc</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_function_code</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_parameters</span> <span class="o">=</span> <span class="n">fit_p_fit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_par_errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="c1"># Chi squared</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_data_error</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">fitfunc</span><span class="p">(</span><span class="n">xsel</span><span class="p">,</span> <span class="o">*</span><span class="n">fit_p_fit</span><span class="p">)</span> <span class="o">-</span> <span class="n">ysel</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xsel</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_labels</span> <span class="o">=</span> <span class="n">labels</span>
+
+        <span class="k">if</span> <span class="n">plot_params</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_pars</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">fit_p_fit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_par_errors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_data_error</span></div>
+
+<div class="viewcode-block" id="data_table.fit_func"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.fit_func">[docs]</a>    <span class="k">def</span> <span class="nf">fit_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates values of fit function for an x-array/values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x : None, float, list, np.array</span>
+<span class="sd">            X values. None means same x data as datamodule.</span>
+
+<span class="sd">        ToDo</span>
+<span class="sd">        -----</span>
+<span class="sd">        Would like to rename the function to calc_fitfunc(self, x=None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No fit was executed on this data&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">exec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_function_code</span><span class="p">)</span>
+        <span class="n">possibles</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">possibles</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+        <span class="n">fitfunc</span> <span class="o">=</span> <span class="n">possibles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_function</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fitfunc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Method </span><span class="si">%s</span><span class="s1"> not implemented&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_function</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fitfunc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_parameters</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fitfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_parameters</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_table.localmin"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.localmin">[docs]</a>    <span class="k">def</span> <span class="nf">localmin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;clip&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Obtain all the local minimas</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        min_threshold : float</span>
+<span class="sd">            Only consider minima below this value</span>
+<span class="sd">        npoints : int</span>
+<span class="sd">            How many points on each side to use for the comparison.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            &#39;clip&#39; (def) or &#39;wrap&#39;. If wrap is used, the data will considered</span>
+<span class="sd">            periodic-like</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        np.array</span>
+<span class="sd">            x and y values of local minima</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">ysel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="k">if</span> <span class="n">min_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msk</span> <span class="o">=</span> <span class="n">ysel</span> <span class="o">&lt;=</span> <span class="n">min_threshold</span>
+            <span class="n">xsel</span> <span class="o">=</span> <span class="n">xsel</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span>
+            <span class="n">ysel</span> <span class="o">=</span> <span class="n">ysel</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span>
+
+        <span class="n">min_idx</span> <span class="o">=</span> <span class="n">sp_sig</span><span class="o">.</span><span class="n">argrelextrema</span><span class="p">(</span><span class="n">ysel</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">less</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">npoints</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">xsel</span><span class="p">[</span><span class="n">min_idx</span><span class="p">],</span> <span class="n">ysel</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="data_table.localmax"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.localmax">[docs]</a>    <span class="k">def</span> <span class="nf">localmax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;clip&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Obtain all the local maxima</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        min_threshold : float</span>
+<span class="sd">            Only consider maxima above this value</span>
+<span class="sd">        npoints : int</span>
+<span class="sd">            How many points on each side to use for the comparison.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            &#39;clip&#39; (def) or &#39;wrap&#39;. If wrap is used, the data will considered</span>
+<span class="sd">            periodic-like</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        np.array</span>
+<span class="sd">            x and y values of local maxima</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">ysel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="k">if</span> <span class="n">max_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msk</span> <span class="o">=</span> <span class="n">ysel</span> <span class="o">&gt;=</span> <span class="n">max_threshold</span>
+            <span class="n">xsel</span> <span class="o">=</span> <span class="n">xsel</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span>
+            <span class="n">ysel</span> <span class="o">=</span> <span class="n">ysel</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span>
+
+        <span class="n">min_idx</span> <span class="o">=</span> <span class="n">sp_sig</span><span class="o">.</span><span class="n">argrelextrema</span><span class="p">(</span><span class="n">ysel</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">npoints</span><span class="p">,</span>
+                                       <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">xsel</span><span class="p">[</span><span class="n">min_idx</span><span class="p">],</span> <span class="n">ysel</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="data_table.smooth"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.smooth">[docs]</a>    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nnb</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Smooth data using the Savitzky-Golay filter.</span>
+
+<span class="sd">        Information</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter</span>
+
+<span class="sd">        This has the advantage over moving_average, that the bias of smaller</span>
+<span class="sd">        local minima/maxima is removed.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">        Saves the smoothed data as dm.y values. To unsmooth the data run</span>
+<span class="sd">        `unsmooth()`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        nnb : int</span>
+<span class="sd">            Window length of filter</span>
+<span class="sd">        polyorder : int</span>
+<span class="sd">            Polynomial order for the fit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y_filtered</span> <span class="o">=</span> <span class="n">sp_sig</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">],</span> <span class="n">nnb</span><span class="p">,</span> <span class="n">polyorder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">import_data</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_filtered</span><span class="p">],</span>
+                         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_smoothed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">1</span><span class="p">])])</span></div>
+
+<div class="viewcode-block" id="data_table.unsmooth"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.unsmooth">[docs]</a>    <span class="k">def</span> <span class="nf">unsmooth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recover unsmoothened y data.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_smoothed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="data_table.interp"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.interp">[docs]</a>    <span class="k">def</span> <span class="nf">interp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xnew</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolates data to new x values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        xnew : list, np.array</span>
+<span class="sd">            New x array</span>
+<span class="sd">        kind : str</span>
+<span class="sd">            Kind of interpolation.</span>
+<span class="sd">            Choose between &#39;linear&#39;, &#39;nearest&#39;, &#39;zero&#39;, &#39;slinear&#39;, &#39;quadratic&#39;,</span>
+<span class="sd">            &#39;cubic&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            Returns a new datamodule.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        --------</span>
+<span class="sd">            &gt;&gt;&gt; d1 = dm.load_datamodule(&#39;foo.dm&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; xnew = np.linspace(d1.x.min(), d1.x.max(), 100)</span>
+<span class="sd">            &gt;&gt;&gt; d2 = d1.interp(xnew)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">sp_intp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_table</span><span class="p">([</span><span class="n">xnew</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">xnew</span><span class="p">)],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="data_table.fit_pars"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.fit_pars">[docs]</a>    <span class="k">def</span> <span class="nf">fit_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the fit parameters as pandas DataFrame.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_executed</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No Fit found. Please run a fit first.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_parameters</span><span class="p">),</span>
+                           <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_par_errors</span><span class="p">)])</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">,</span> <span class="s1">&#39;Error&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_labels</span>
+
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">T</span></div>
+
+<div class="viewcode-block" id="data_table.y_value"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_table.y_value">[docs]</a>    <span class="k">def</span> <span class="nf">y_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns y value for given x array or value using linear</span>
+<span class="sd">        interpolation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : list, np.array, float</span>
+<span class="sd">            x value(s)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        list, np.array, float</span>
+<span class="sd">            Interpolated y value for given x value(s)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Christian Schneider.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

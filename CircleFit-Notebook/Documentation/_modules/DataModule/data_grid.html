@@ -1,0 +1,878 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DataModule.data_grid &mdash; DataModule 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DataModule
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodule.html">DataModule</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DataModule</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>DataModule.data_grid</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DataModule.data_grid</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Author: Christian Schneider &lt;c.schneider@uibk.ac.at&gt;</span>
+<span class="sd">Date: 17.03.2018</span>
+
+<span class="sd">data_grid structure for our DataModule.</span>
+<span class="sd">Powered by xarray (xarray.pydata.org)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">data_module_base</span>
+<span class="kn">import</span> <span class="nn">holoviews</span> <span class="k">as</span> <span class="nn">hv</span>
+<span class="kn">import</span> <span class="nn">holoviews.operation.datashader</span> <span class="k">as</span> <span class="nn">hd</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sp_sig</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">sp_intp</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">.data_table</span> <span class="k">import</span> <span class="n">data_table</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="k">import</span> <span class="n">make_axes_locatable</span>
+<span class="kn">from</span> <span class="nn">.fit_functions</span> <span class="k">import</span> <span class="n">mode_fit</span><span class="p">,</span> <span class="n">lorentzian_fit</span>
+
+<span class="n">hv</span><span class="o">.</span><span class="n">extension</span><span class="p">(</span><span class="s1">&#39;bokeh&#39;</span><span class="p">,</span> <span class="n">logo</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="data_grid"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid">[docs]</a><span class="k">class</span> <span class="nc">data_grid</span><span class="p">(</span><span class="n">data_module_base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for grid like data in multiple dimensions. Powered by the</span>
+<span class="sd">    excellent library xarray for python.</span>
+
+<span class="sd">    Initialization should be [x1_coords, x2_coords, ...., xN_coords,</span>
+<span class="sd">    N_dim_data_tensor]</span>
+<span class="sd">    Which means that the matrix for data is the last element of the given array.</span>
+
+<span class="sd">    Supports also custom names for each dimension which can be given as an</span>
+<span class="sd">    array. The last element is the name for the values (not the dimesion).</span>
+<span class="sd">    Example: [&#39;Probe Frequency (GHz)&#39;, &#39;Readout Frequency (GHz)&#39;, &#39;Mag (dB)&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">data_names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Create default names</span>
+        <span class="n">df_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
+        <span class="n">df_names</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;x</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_array</span><span class="p">))]</span>
+        <span class="n">df_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Value&#39;</span>  <span class="c1"># Last element is matrix/tensor</span>
+        <span class="c1"># Replace default names by the names given</span>
+        <span class="k">if</span> <span class="n">data_names</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_names</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">data_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="n">df_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="c1"># Create xarray</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                               <span class="n">dims</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">d_name</span> <span class="k">for</span> <span class="n">d_name</span> <span class="ow">in</span> <span class="n">df_names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+                               <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="n">d_name</span><span class="p">:</span> <span class="n">d_vals</span> <span class="k">for</span> <span class="p">(</span><span class="n">d_name</span><span class="p">,</span> <span class="n">d_vals</span><span class="p">)</span> <span class="ow">in</span>
+                                       <span class="nb">zip</span><span class="p">(</span><span class="n">df_names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">data_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])},</span>
+                               <span class="n">name</span><span class="o">=</span><span class="n">df_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Idx variables for limiting data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_max</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Easy access variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">df_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">df_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span> <span class="o">=</span> <span class="n">df_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Helpful data functions ###################################################</span>
+    <span class="k">def</span> <span class="nf">return_coord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">coord_name</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Default for two dim grid: Return first dimension&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_coord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">)</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Default for two dim grid: Return second dimension&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_coord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Default for two dim grid: Return values&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span>
+
+    <span class="nd">@values</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="nf">rename_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">:</span> <span class="n">new_name</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">new_name</span>
+
+    <span class="k">def</span> <span class="nf">rename_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">:</span> <span class="n">new_name</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">new_name</span>
+
+    <span class="k">def</span> <span class="nf">rename_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span> <span class="o">=</span> <span class="n">new_name</span>
+
+    <span class="k">def</span> <span class="nf">rename_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_values</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>  <span class="c1"># alias</span>
+
+<div class="viewcode-block" id="data_grid.select"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yrng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Limit data between specified ranges.</span>
+
+<span class="sd">        This function will select the data in the specified range of the</span>
+<span class="sd">        x-axis and y-axis. If nothing is specified all the data will be</span>
+<span class="sd">        selected.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">        To undo a selection just run `select()` without an argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        xrng : list</span>
+<span class="sd">            Start and stop x value [x_start, x_stop]</span>
+<span class="sd">        yrng : list</span>
+<span class="sd">            Start and stop y value [y_start, y_stop]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">xrng</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">]</span>
+            <span class="n">x_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">xrng</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">xrng</span><span class="p">[</span><span class="mi">1</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">yrng</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">]</span>
+            <span class="n">y_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">yrng</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">yrng</span><span class="p">[</span><span class="mi">1</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span> <span class="o">=</span> <span class="n">y_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_max</span> <span class="o">=</span> <span class="n">y_idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="n">x_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="n">x_idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="data_grid.extract_x"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.extract_x">[docs]</a>    <span class="k">def</span> <span class="nf">extract_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract z values along  axis for specified x value x0.</span>
+
+<span class="sd">        This function will return the data at the line corresponding at</span>
+<span class="sd">        the specified value of the x-axis.</span>
+<span class="sd">        If the value is not exact, it will take the closest one above the</span>
+<span class="sd">        value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x0 : float</span>
+<span class="sd">            y value for which the data should be extracted</span>
+<span class="sd">        plot : bool</span>
+<span class="sd">            Plot the extracted datamodule directly</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            data_table module</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">dims</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">kws</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">x0</span><span class="p">}</span>
+        <span class="n">ex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ex</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]],</span>
+                          <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span><span class="p">])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">plot_hv</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x0</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="data_grid.extract_y"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.extract_y">[docs]</a>    <span class="k">def</span> <span class="nf">extract_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract z values along  axis for specified y value y0.</span>
+
+<span class="sd">        This function will return the data at the line corresponding at</span>
+<span class="sd">        the specified value of the x-axis.</span>
+<span class="sd">        If the value is not exact, it will take the closest one above the</span>
+<span class="sd">        value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        y0 : float</span>
+<span class="sd">            y value for which the data should be extracted</span>
+<span class="sd">        plot : bool</span>
+<span class="sd">            Plot the extracted datamodule directly</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            data_table module</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">dims</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">kws</span> <span class="o">=</span> <span class="p">{</span><span class="n">y</span><span class="p">:</span> <span class="n">y0</span><span class="p">}</span>
+        <span class="n">ex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ex</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">]],</span>
+                          <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span><span class="p">])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">plot_hv</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y0</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    <span class="c1"># Plotting #################################################################</span>
+<div class="viewcode-block" id="data_grid.plot"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;magma&#39;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+             <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">z_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;Image&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot table with Holoviews</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        name_x : None, str</span>
+<span class="sd">            Column name used for x axis</span>
+<span class="sd">        name_y : None, str</span>
+<span class="sd">            Column name used for y axis</span>
+<span class="sd">        cmap : str</span>
+<span class="sd">            Name of colormap</span>
+<span class="sd">        height : int</span>
+<span class="sd">            Height of plot in pixels</span>
+<span class="sd">        width : int</span>
+<span class="sd">            Width of plot in pixels</span>
+<span class="sd">        z_min : None, float(Optional)</span>
+<span class="sd">            Minimum value for z values. If you set this, the scale will not</span>
+<span class="sd">            automatically updated to full contrast.</span>
+<span class="sd">        z_max : None, float (Optional)</span>
+<span class="sd">            Maximum value for z values</span>
+<span class="sd">        mode : &#39;QuadMesh&#39;, &#39;Image&#39;</span>
+<span class="sd">            Choose mode for holoviews plotting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name_x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_vals</span> <span class="o">=</span> <span class="n">name_x</span>
+
+        <span class="k">if</span> <span class="n">name_y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_vals</span> <span class="o">=</span> <span class="n">name_y</span>
+        <span class="n">hv</span><span class="o">.</span><span class="n">opts</span><span class="p">({</span><span class="n">mode</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;plot&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="n">width</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">height</span><span class="p">},</span>
+                              <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">cmap</span><span class="p">}}})</span>
+        <span class="c1"># Rename z values (to prevent bug in holoviews)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
+        <span class="c1"># Create dataset</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="c1"># Create HoloObject</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;QuadMesh&#39;</span><span class="p">:</span>
+            <span class="n">holo_object</span> <span class="o">=</span> <span class="n">hd</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">hv</span><span class="o">.</span><span class="n">QuadMesh</span><span class="p">,</span> <span class="p">[</span><span class="n">x_vals</span><span class="p">,</span> <span class="n">y_vals</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">holo_object</span> <span class="o">=</span> <span class="n">hd</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">hv</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="p">[</span><span class="n">x_vals</span><span class="p">,</span> <span class="n">y_vals</span><span class="p">]))</span>
+        <span class="c1"># Rescale</span>
+        <span class="n">holo_object</span> <span class="o">=</span> <span class="n">holo_object</span><span class="o">.</span><span class="n">redim</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="p">(</span><span class="n">z_min</span><span class="p">,</span> <span class="n">z_max</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">holo_object</span></div>
+
+<div class="viewcode-block" id="data_grid.pcolormesh"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.pcolormesh">[docs]</a>    <span class="k">def</span> <span class="nf">pcolormesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simple color plot without options. Quick and light&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_grid.imshow"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.imshow">[docs]</a>    <span class="k">def</span> <span class="nf">imshow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;magma&#39;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">zlabel_pos</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+               <span class="n">labelpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cbar_y</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Color plot using matplotlib</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">        Plots just the .select() data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        colormap : str</span>
+<span class="sd">            Choose colormap from &#39;Magma&#39; (Def), &#39;Inferno&#39;, &#39;Plasma&#39;, &#39;Viridis&#39;</span>
+<span class="sd">        levels : int</span>
+<span class="sd">            Color levels. Default is 256</span>
+<span class="sd">        data_type : str</span>
+<span class="sd">            Choose if data is linear &#39;Lin&#39;, logarithmic &#39;Log&#39; or &#39;Amplitude&#39;</span>
+<span class="sd">        xlabel : str</span>
+<span class="sd">            Label for x axis</span>
+<span class="sd">        ylabel : str</span>
+<span class="sd">            Label for y axis</span>
+<span class="sd">        zlabel : str</span>
+<span class="sd">            Label for colorbar</span>
+<span class="sd">        zlabel_pos : &quot;top&quot;, &quot;right&quot;, &quot;right_invert&quot;</span>
+<span class="sd">            Position and orientation of zlabel next to colorbar. If location is</span>
+<span class="sd">            wrong, play with labelpad and cbar_y</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get colormap from matplotlib</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">colormap</span><span class="p">,</span> <span class="n">levels</span><span class="p">)</span>
+
+        <span class="c1"># Just get select range</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span>
+
+        <span class="c1"># Plot</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                            <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+        <span class="c1"># Customizing colorbar</span>
+        <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">cax</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;5%&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">zlabel_pos</span> <span class="o">==</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_v</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="n">labelpad</span> <span class="o">-</span> <span class="mi">32</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">cbar_y</span> <span class="o">+</span> <span class="mf">0.58</span><span class="p">,</span>
+                           <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">zlabel_pos</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_v</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="n">labelpad</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">cbar_y</span><span class="p">,</span>
+                           <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_v</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="n">labelpad</span> <span class="o">+</span> <span class="mi">15</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">cbar_y</span><span class="p">,</span>
+                           <span class="n">rotation</span><span class="o">=-</span><span class="mi">90</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+    <span class="k">def</span> <span class="nf">contourf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">y_max</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">)</span>
+
+    <span class="c1"># Data processing functions ################################################</span>
+<div class="viewcode-block" id="data_grid.smoothx"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.smoothx">[docs]</a>    <span class="k">def</span> <span class="nf">smoothx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nnb</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Smooth data along x axis using the Savitzky-Golay filter</span>
+
+<span class="sd">        Currently just for xyz data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        nnb : int</span>
+<span class="sd">            Window length of filter. Must be an odd integer</span>
+<span class="sd">        polyorder : int</span>
+<span class="sd">            Polynomial order for the fit</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        np.array</span>
+<span class="sd">            Filtered z matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">zsel</span><span class="p">):</span>
+            <span class="n">zsel</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sp_sig</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">nnb</span><span class="p">,</span> <span class="n">polyorder</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">zsel</span></div>
+
+<div class="viewcode-block" id="data_grid.smoothy"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.smoothy">[docs]</a>    <span class="k">def</span> <span class="nf">smoothy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nnb</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Smooth data along y axis using the Savitzky-Golay filter</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        nnb : int</span>
+<span class="sd">            Window length of filter. Must be an odd integer</span>
+<span class="sd">        polyorder : int</span>
+<span class="sd">            Polynomial order for the fit</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        np.array</span>
+<span class="sd">            Filtered z matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">zsel</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">zsel</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp_sig</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">nnb</span><span class="p">,</span> <span class="n">polyorder</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">zsel</span></div>
+
+<div class="viewcode-block" id="data_grid.interp"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.interp">[docs]</a>    <span class="k">def</span> <span class="nf">interp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xnew</span><span class="p">,</span> <span class="n">ynew</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolates data to new x, y values `xnew` and `ynew`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        xnew : np.array</span>
+<span class="sd">            New x array</span>
+<span class="sd">        ynew : np.array</span>
+<span class="sd">            New y array</span>
+<span class="sd">        kind : str</span>
+<span class="sd">            Chose interpolation kind out of [&#39;linear&#39;, &#39;cubic&#39;, &#39;quintic&#39;]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            A new data_surface DataModule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># interp2d has a weird structure, therefore we have to transpose</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">sp_intp</span><span class="o">.</span><span class="n">interp2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_grid</span><span class="p">([</span><span class="n">xnew</span><span class="p">,</span> <span class="n">ynew</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">xnew</span><span class="p">,</span> <span class="n">ynew</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span>
+                                                         <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">,</span>
+                                                         <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="data_grid.extract_min_x"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.extract_min_x">[docs]</a>    <span class="k">def</span> <span class="nf">extract_min_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nnB</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract minimum z-values sweeping through x.</span>
+
+<span class="sd">        Smooth data and extract minimum z values sweeping through x.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            Return depends on argument.</span>
+<span class="sd">            - If set to True, it will return a new datamodule with (y, x)</span>
+<span class="sd">            - If set to False, it will return a new datamodule with (y, min(z))</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        argument : bool</span>
+<span class="sd">            Return corresponding x value (True) or corresponding minimum value</span>
+<span class="sd">        nnB : int</span>
+<span class="sd">            Window length for smoothing. Set to 1 to disable</span>
+<span class="sd">                        smoothing.</span>
+<span class="sd">        polyorder : int</span>
+<span class="sd">            Polynomial order for smoothing</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            A `data_table` DataModule. Values depend on argument keyword (see</span>
+<span class="sd">            above)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nnB</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">zsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">zsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothx</span><span class="p">(</span><span class="n">nnB</span><span class="p">,</span> <span class="n">polyorder</span><span class="p">)</span>  <span class="c1"># Z data is smoothened along y</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="c1"># Get minima</span>
+        <span class="k">if</span> <span class="n">argument</span><span class="p">:</span>
+            <span class="c1"># Return y values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">zsel</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])]</span>
+            <span class="n">name_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_y</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return z values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">zsel</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">name_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tmp</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span> <span class="n">name_tmp</span><span class="p">])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="data_grid.extract_min_y"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.extract_min_y">[docs]</a>    <span class="k">def</span> <span class="nf">extract_min_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nnB</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract minimum z-values sweeping through y.</span>
+
+<span class="sd">        Smooth data and extract minimum z values sweeping through y.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            Return depends on argument.</span>
+<span class="sd">            - If set to True, it will return a new datamodule with (y, x)</span>
+<span class="sd">            - If set to False, it will return a new datamodule with (y, min(z))</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        argument : bool</span>
+<span class="sd">            Return corresponding x value (True) or corresponding minimum value</span>
+<span class="sd">        nnB : int</span>
+<span class="sd">            Window length for smoothing. Set to 1 to disable</span>
+<span class="sd">                        smoothing.</span>
+<span class="sd">        polyorder : int</span>
+<span class="sd">            Polynomial order for smoothing</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            A `data_table` DataModule. Values depend on argument keyword (see</span>
+<span class="sd">            above)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nnB</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">zsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">zsel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothx</span><span class="p">(</span><span class="n">nnB</span><span class="p">,</span> <span class="n">polyorder</span><span class="p">)</span>  <span class="c1"># Z data is smoothened along y</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="c1"># Get minima</span>
+        <span class="k">if</span> <span class="n">argument</span><span class="p">:</span>
+            <span class="c1"># Return x values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">zsel</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])]</span>
+            <span class="n">name_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return z values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">zsel</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+            <span class="n">name_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">tmp</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">,</span> <span class="n">name_tmp</span><span class="p">])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="data_grid.extract_min_lorentzianfit_y"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.extract_min_lorentzianfit_y">[docs]</a>    <span class="k">def</span> <span class="nf">extract_min_lorentzianfit_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">adapt_p0</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use Lorentzian with initial parameters p0 to fit the maximum z-value</span>
+<span class="sd">        while sweeping through y.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            Return depends on argument.</span>
+<span class="sd">            - If set to True, it will return a new datamodule with (y, x)</span>
+<span class="sd">            - If set to False, it will return a new datamodule with (y, max(z))</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        p0 : list</span>
+<span class="sd">            Initial guess for lorentzianfit pars [&#39;center&#39;, &#39;width&#39;, &#39;offset&#39;,</span>
+<span class="sd">            &#39;amplitude&#39;]</span>
+<span class="sd">        argument : bool</span>
+<span class="sd">            Return x or z values</span>
+<span class="sd">        plot : bool</span>
+<span class="sd">            Plot each iteration</span>
+<span class="sd">        adapt_p0 : bool</span>
+<span class="sd">            Use p0 of last iteration</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            A `data_table` DataModule. Values depend on argument keyword (see</span>
+<span class="sd">            above)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">err_bars</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Guess initial parameters, if none is given</span>
+        <span class="k">if</span> <span class="n">p0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
+            <span class="n">idx_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">tmp_data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">tmp_data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="n">tmp_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">idx_min</span><span class="p">]</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">center</span> <span class="o">/</span> <span class="mf">1e6</span>  <span class="c1"># kHz as guess</span>
+            <span class="n">amplitude</span> <span class="o">=</span> <span class="n">tmp_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idx_min</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span>
+            <span class="n">p0</span> <span class="o">=</span> <span class="p">[</span><span class="n">center</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">]</span>
+
+        <span class="c1"># Go through y values and find x coordinate for maximum z value</span>
+        <span class="k">if</span> <span class="n">argument</span><span class="p">:</span>
+            <span class="c1"># Return x values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp_dm</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]])</span>
+                <span class="n">fpars</span><span class="p">,</span> <span class="n">fpars_err</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tmp_dm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">lorentzian_fit</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+                                                 <span class="n">plot_init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">plot_params</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fpars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">err_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fpars_err</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">tmp_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span>
+                <span class="k">if</span> <span class="n">adapt_p0</span><span class="p">:</span>
+                    <span class="n">p0</span> <span class="o">=</span> <span class="n">fpars</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return z values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp_dm</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]])</span>
+                <span class="n">fpars</span><span class="p">,</span> <span class="n">fpars_err</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tmp_dm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">lorentzian_fit</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+                                                 <span class="n">plot_init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">plot_params</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lorentzian_fit</span><span class="p">(</span><span class="n">fpars</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">fpars</span><span class="p">)</span>
+                <span class="n">tmp_err_bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">fpars</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">fpars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span>
+                                       <span class="n">fpars_err</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">fpars_err</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                                      <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">fpars</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">fpars_err</span><span class="p">[</span>
+                                          <span class="mi">3</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">err_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_err_bar</span><span class="p">)</span>
+                <span class="n">tmp_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span>
+                <span class="k">if</span> <span class="n">adapt_p0</span><span class="p">:</span>
+                    <span class="n">p0</span> <span class="o">=</span> <span class="n">fpars</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">err_bars</span><span class="p">],</span>
+                          <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">,</span> <span class="n">tmp_name</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> Errors&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="data_grid.extract_min_modefit_y"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_grid.extract_min_modefit_y">[docs]</a>    <span class="k">def</span> <span class="nf">extract_min_modefit_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use mode fit with initial parameters p0 to fit the minimum z-value</span>
+<span class="sd">        while sweeping through y.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            Return depends on argument.</span>
+<span class="sd">            - If set to True, it will return a new datamodule with (y, x)</span>
+<span class="sd">            - If set to False, it will return a new datamodule with (y, min(z))</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        p0 : list</span>
+<span class="sd">            Initial guess for modefit pars [&#39;offset&#39;, &#39;Qc&#39;, &#39;df&#39;, &#39;f0&#39;, &#39;Qi&#39;]</span>
+<span class="sd">        argument : bool</span>
+<span class="sd">            Return x or z values</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        DataModule</span>
+<span class="sd">            A `data_table` DataModule. Values depend on argument keyword (see</span>
+<span class="sd">            above)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">err_bars</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Guess initial parameters, if none is given</span>
+        <span class="k">if</span> <span class="n">p0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
+            <span class="n">idx_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">tmp_data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">tmp_data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">Qc</span> <span class="o">=</span> <span class="mf">1e4</span>  <span class="c1"># Medium value</span>
+            <span class="n">Qi</span> <span class="o">=</span> <span class="mf">1e4</span>  <span class="c1"># Medium value</span>
+            <span class="n">f0</span> <span class="o">=</span> <span class="n">tmp_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">idx_min</span><span class="p">]</span>  <span class="c1"># Frequency of minimum</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">f0</span> <span class="o">/</span> <span class="mf">1e6</span>  <span class="c1"># MHz?</span>
+            <span class="n">p0</span> <span class="o">=</span> <span class="p">[</span><span class="n">offset</span><span class="p">,</span> <span class="n">Qc</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="n">Qi</span><span class="p">]</span>
+
+        <span class="c1"># Go through y values and find x coordinate for minimum z value</span>
+        <span class="k">if</span> <span class="n">argument</span><span class="p">:</span>
+            <span class="c1"># Return x values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp_dm</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]])</span>
+                <span class="n">fpars</span><span class="p">,</span> <span class="n">fpars_err</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tmp_dm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">mode_fit</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+                                                 <span class="n">plot_init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">plot_params</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fpars</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">err_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fpars_err</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">tmp_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return z values</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
+                <span class="n">tmp_dm</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]])</span>
+                <span class="n">fpars</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tmp_dm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">mode_fit</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+                                         <span class="n">plot_init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                         <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">mode_fit</span><span class="p">(</span><span class="n">fpars</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="o">*</span><span class="n">fpars</span><span class="p">)</span>
+                <span class="n">tmp_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_v</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">err_bars</span><span class="p">],</span>
+                          <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_y</span><span class="p">,</span> <span class="n">tmp_name</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> Errors&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+        <span class="k">return</span> <span class="n">data</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Christian Schneider.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

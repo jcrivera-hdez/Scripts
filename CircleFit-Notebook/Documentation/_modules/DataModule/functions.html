@@ -1,0 +1,1162 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DataModule.functions &mdash; DataModule 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DataModule
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodule.html">DataModule</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DataModule</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>DataModule.functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DataModule.functions</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Basic DataModule functions.</span>
+
+<span class="sd">This contains functions typically used for the datamodule, like loading and</span>
+<span class="sd">saving.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">.downwards_compatibility.data_line</span> <span class="k">import</span> <span class="n">data_line</span>
+<span class="kn">from</span> <span class="nn">.downwards_compatibility.data_surface</span> <span class="k">import</span> <span class="n">data_surface</span>
+
+<span class="kn">from</span> <span class="nn">.data_complex</span> <span class="k">import</span> <span class="n">data_complex</span>
+<span class="kn">from</span> <span class="nn">.data_grid</span> <span class="k">import</span> <span class="n">data_grid</span>
+<span class="kn">from</span> <span class="nn">.data_table</span> <span class="k">import</span> <span class="n">data_table</span>
+<span class="kn">from</span> <span class="nn">.data_IQ</span> <span class="k">import</span> <span class="n">data_IQ</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">from</span> <span class="nn">.version</span> <span class="k">import</span> <span class="n">__version__</span>
+<span class="kn">import</span> <span class="nn">bokeh.plotting</span> <span class="k">as</span> <span class="nn">bp</span>
+<span class="kn">from</span> <span class="nn">.plot_style</span> <span class="k">import</span> <span class="n">color_scheme</span>
+<span class="kn">import</span> <span class="nn">holoviews</span> <span class="k">as</span> <span class="nn">hv</span>
+
+<span class="n">current_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_grid</span><span class="p">,</span> <span class="n">data_complex</span><span class="p">,</span> <span class="n">data_table</span><span class="p">)</span>
+
+
+<span class="c1"># Function Library ############################################################</span>
+<div class="viewcode-block" id="load_datamodule"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.load_datamodule">[docs]</a><span class="k">def</span> <span class="nf">load_datamodule</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">upgrade</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Load a datamodule</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Filepath</span>
+<span class="sd">    upgrade : bool</span>
+<span class="sd">        Upgrade datamodule to newest version</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DataModule</span>
+<span class="sd">        Returns a datamodule</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">upgrade</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">upgrade_dm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">a</span>
+
+    <span class="c1">## This sections is for downwards compatibility ############################</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">NameError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># This is just for compatibility with old datamodule files</span>
+        <span class="kn">import</span> <span class="nn">sys</span>
+        <span class="kn">import</span> <span class="nn">DataModule.downwards_compatibility.data_line</span> <span class="k">as</span> <span class="nn">data_l</span>
+        <span class="kn">import</span> <span class="nn">DataModule.downwards_compatibility.data_surface</span> <span class="k">as</span> <span class="nn">data_s</span>
+        <span class="kn">import</span> <span class="nn">DataModule.downwards_compatibility.data_complex</span> <span class="k">as</span> <span class="nn">data_c</span>
+        <span class="kn">import</span> <span class="nn">DataModule.data_table</span> <span class="k">as</span> <span class="nn">data_t</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_line&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_l</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_surface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_s</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data_3d</span> <span class="o">=</span> <span class="n">data_s</span><span class="o">.</span><span class="n">data_3d</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_complex&#39;</span><span class="p">]</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_complex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_c</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data_cplx</span> <span class="o">=</span> <span class="n">data_c</span><span class="o">.</span><span class="n">data_cplx</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_xy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_t</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_xy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data_xy</span> <span class="o">=</span> <span class="n">data_table</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># Old data complex class</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">data_c</span><span class="o">.</span><span class="n">data_complex</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">data_complex</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">idx_min</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">idx_max</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="n">data_line</span><span class="p">,</span> <span class="n">data_surface</span><span class="p">)):</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">upgrade_dm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="n">data_table</span><span class="p">)):</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">upgrade_dm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Restore new classes</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_complex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+        <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_line&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_surface&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_xy&#39;</span><span class="p">]</span>
+        <span class="c1"># Save new datamodules</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">Upgrade to datamodule V3. Saved new datamodule&#39;</span><span class="p">,</span>
+              <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">useDate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span>
+
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">sys</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;DataModule.data_complex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+        <span class="n">data_new</span> <span class="o">=</span> <span class="n">data_complex</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">idx_min</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">idx_max</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">useDate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_new</span></div>
+
+    <span class="c1">############################################################################</span>
+
+
+<div class="viewcode-block" id="plot_multiple"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.plot_multiple">[docs]</a><span class="k">def</span> <span class="nf">plot_multiple</span><span class="p">(</span><span class="n">dm_list</span><span class="p">,</span> <span class="n">label_list</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;hv&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot multiple Datamodules in a single bokeh/pyplot figure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    dm_list : list, array</span>
+<span class="sd">        List of datamodules: [dm1, dm2, ...]</span>
+<span class="sd">    label_list : list, array</span>
+<span class="sd">        List of labels for the plot: [&quot;Data of dm1&quot;, &quot;Data of dm2&quot;]</span>
+<span class="sd">    figure : object</span>
+<span class="sd">        Optional: Figure to plot in</span>
+<span class="sd">    colormap : List of colors</span>
+<span class="sd">        Optional: Bokeh colorpalette. You have to import it first from</span>
+<span class="sd">        bokeh.palettes or specify itself. Format: [&quot;#FFFFFF&quot;, &quot;#01245&quot;, ...]</span>
+<span class="sd">    engine : str</span>
+<span class="sd">        Optional: Specify if Plot should be in bokeh or pyplot</span>
+<span class="sd">    kwargs : keywords</span>
+<span class="sd">        Optional: Keywords for bokeh or pyplot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Import default colormap</span>
+    <span class="k">if</span> <span class="n">colormap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">color_scheme</span>
+
+    <span class="c1"># Plot</span>
+    <span class="c1"># Plot in pyplot</span>
+    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;p&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dm_list</span><span class="p">,</span> <span class="n">label_list</span><span class="p">,</span> <span class="n">colormap</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">engine</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+        <span class="c1"># Plot with holoviews</span>
+        <span class="c1"># Create Legend (bugfix for holoviews)</span>
+        <span class="n">color_points</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">NdOverlay</span><span class="p">({</span><span class="n">label_list</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">hv</span><span class="o">.</span><span class="n">Points</span><span class="p">([[</span><span class="n">dm_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                <span class="n">dm_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">[</span>
+                                                                    <span class="mi">0</span><span class="p">]]],</span>
+                                                              <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
+                                                                  <span class="n">label_list</span><span class="p">[</span>
+                                                                      <span class="n">i</span><span class="p">]))</span>
+                                    <span class="o">.</span><span class="n">opts</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">colormap</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dm_list</span><span class="p">))})</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">dm_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot_hv</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">colormap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dm_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">colormap</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">plot</span> <span class="o">*=</span> <span class="n">d</span><span class="o">.</span><span class="n">plot_hv</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">plot</span> <span class="o">*=</span> <span class="n">color_points</span>
+        <span class="k">return</span> <span class="n">plot</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Plot with bokeh</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;muted_alpha&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="c1"># Set to invisible when not other specified </span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;muted_alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">bp</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dm_list</span><span class="p">,</span> <span class="n">label_list</span><span class="p">,</span> <span class="n">colormap</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">click_policy</span> <span class="o">=</span> <span class="s2">&quot;mute&quot;</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s2">&quot;top_left&quot;</span>
+        <span class="n">bp</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_folder"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.load_folder">[docs]</a><span class="k">def</span> <span class="nf">load_folder</span><span class="p">(</span><span class="n">folderpath</span><span class="p">,</span> <span class="n">word_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dm_pars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">regexp</span><span class="o">=</span><span class="s1">&#39;[\w+\-.@&lt;&gt;]+.dm$&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_par</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads all datamodules from a specified folder path.</span>
+
+<span class="sd">    Accepts a keyword to filter files or a regular expression to obtain</span>
+<span class="sd">    parameters from filename.</span>
+
+<span class="sd">    Sorts the datamodules by the first given parameter. Either in dm_pars</span>
+<span class="sd">    or in the regular expression. If you wish to not sort it, pass `sort` False</span>
+<span class="sd">    as argument.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    ---------</span>
+<span class="sd">    &gt;&gt;&gt; dm.load_folder(&#39;./fluxsweep/&#39;, word_search=&#39;NewRun&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; dm.load_folder(&#39;./fluxsweep/&#39;,\</span>
+<span class="sd"> regexp=&#39;[\w+\-.]+I_(?P&lt;current&gt;[\d\-]+)[\w+\-.]&#39;)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    folderpath : str</span>
+<span class="sd">        Path to the folder</span>
+<span class="sd">    word_search : str, optional</span>
+<span class="sd">        Only files containing this string will be added</span>
+<span class="sd">    dm_pars : list(str), optional</span>
+<span class="sd">        Extract this parameters out of the datamodules</span>
+<span class="sd">        The first parameter is the sorting parameter</span>
+<span class="sd">    regexp : str, optional</span>
+<span class="sd">        Parameter to specify how the file name should look like. If given a</span>
+<span class="sd">        parameter with (?P&lt;par&gt;) it will added to the dm_pars.</span>
+<span class="sd">        https://docs.python.org/3.5/library/re.html</span>
+<span class="sd">    sort : bool</span>
+<span class="sd">        Sort the datamodules according to first parameter</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    tuple(list(DataModule), dict)</span>
+<span class="sd">        Returns a tuple. First element is a sorted list of datamodules, the</span>
+<span class="sd">        second argument is a dictionary with the sorted parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dm_pars</span><span class="p">:</span>
+        <span class="n">dm_pars</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># User mistake handling</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dm_pars</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dm_pars</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;dm_pars must be a list or a tuple of strings&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;PARTYPE&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Read files</span>
+    <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">folderpath</span><span class="p">)</span>
+    <span class="n">filelist</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">fpath</span> <span class="o">+</span> <span class="s1">&#39;/*.dm&#39;</span><span class="p">)]</span>
+    <span class="n">dm_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pars</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># Check if Keyword is given</span>
+    <span class="k">if</span> <span class="n">word_search</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">word_search</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">filelist</span> <span class="o">=</span> <span class="n">tmp</span>
+    <span class="c1"># Check for regular expression</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regexp</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="c1"># Check for parameters in filepath</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">p_val</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_val</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">dm_pars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_val</span><span class="p">]</span>
+
+            <span class="c1"># Append loaded datamodule</span>
+            <span class="n">dm_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">load_datamodule</span><span class="p">(</span><span class="n">fpath</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">f</span><span class="p">))</span>
+            <span class="c1"># Append parameters from parameter list</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dm_pars</span><span class="p">:</span>
+                <span class="c1"># Check if not already added</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">par</span> <span class="o">=</span> <span class="n">dm_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">par</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">{}</span><span class="s1"> has no parameter </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Parameter not found.&#39;</span><span class="p">)</span>
+                    <span class="c1"># Try to append parameter to dict. If no key is found,</span>
+                    <span class="c1"># create one</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">par</span><span class="p">]</span>
+    <span class="c1"># Sort if a parameter is given/found by the first parameter in the list</span>
+    <span class="c1"># Extract parameters from datamodule</span>
+    <span class="n">dm_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dm_list</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sort</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dm_pars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sort_par</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">order_par</span> <span class="o">=</span> <span class="n">dm_pars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">order_par</span> <span class="o">=</span> <span class="n">sort_par</span>
+        <span class="n">pars</span><span class="p">[</span><span class="n">order_par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="n">order_par</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># for sorting</span>
+        <span class="n">ordered_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="n">order_par</span><span class="p">])</span>
+        <span class="c1"># Order datamodules</span>
+        <span class="n">dm_list</span> <span class="o">=</span> <span class="n">dm_list</span><span class="p">[</span><span class="n">ordered_idxs</span><span class="p">]</span>
+        <span class="c1"># Order parameters</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dm_pars</span><span class="p">:</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">ordered_idxs</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">dm_list</span><span class="p">,</span> <span class="n">pars</span></div>
+
+
+<div class="viewcode-block" id="load_folder_grid"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.load_folder_grid">[docs]</a><span class="k">def</span> <span class="nf">load_folder_grid</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">par_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads a folder and creates a data_grid from it.</span>
+
+<span class="sd">    Supports unequal x and y axes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    folder : str</span>
+<span class="sd">        Folder</span>
+<span class="sd">    par_name : str</span>
+<span class="sd">        Name of the data_module parameter used for x axis of data_grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">load_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">dm_pars</span><span class="o">=</span><span class="p">[</span><span class="n">par_name</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_complex</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_grid</span><span class="p">([[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">par_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span>
+                          <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dB</span><span class="o">.</span><span class="n">y</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">data_grid</span><span class="p">([[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">par_name</span><span class="p">][</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">d</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">dB</span><span class="o">.</span><span class="n">y</span><span class="p">]])</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">tmp_data</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_table</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_grid</span><span class="p">([[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">par_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span>
+                          <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">data_grid</span><span class="p">([[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">par_name</span><span class="p">][</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">d</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">y</span><span class="p">]])</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">tmp_data</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="load_csv"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.load_csv">[docs]</a><span class="k">def</span> <span class="nf">load_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dmtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load data from a .csv file using pandas and create a datamodule.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Filename of csv</span>
+<span class="sd">    dmtype : str</span>
+<span class="sd">        Choose from &#39;data_line&#39;, &#39;data_complex&#39;, &#39;data_surface&#39;</span>
+<span class="sd">        Used data type for datamodule. If None, it will try</span>
+<span class="sd">        to figure out the data type automatically from the csv</span>
+<span class="sd">        structure.</span>
+<span class="sd">    delimiter : str</span>
+<span class="sd">        Delimiter for .csv file</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keywords for pandas for csv import</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">     DataModule</span>
+<span class="sd">        A datamodule best fitting to the csv data or specified by dmtype</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dmtype</span><span class="p">:</span>
+        <span class="c1"># Automatically determine data type</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">dmtype</span> <span class="o">=</span> <span class="s1">&#39;data_line&#39;</span>
+        <span class="k">elif</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;re&#39;</span><span class="p">:</span>
+            <span class="c1"># Not so nice, better use regular expression in future</span>
+            <span class="n">dmtype</span> <span class="o">=</span> <span class="s1">&#39;data_complex&#39;</span>
+        <span class="k">elif</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">dmtype</span> <span class="o">=</span> <span class="s1">&#39;data_surface&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Could not determine csv datatype.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dmtype</span> <span class="o">==</span> <span class="s1">&#39;data_line&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: More than two columns in csv file. Neglected them&#39;</span><span class="p">)</span>
+        <span class="n">dm_line</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">dm_line</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">dm_line</span>
+
+    <span class="k">elif</span> <span class="n">dmtype</span> <span class="o">==</span> <span class="s1">&#39;data_complex&#39;</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;CSV has not three columns.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong datamodule format&#39;</span><span class="p">)</span>
+
+        <span class="n">dm_cplx</span> <span class="o">=</span> <span class="n">data_complex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span>
+                               <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Stores header in the comments</span>
+        <span class="n">dm_cplx</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dm_cplx</span>
+
+    <span class="k">elif</span> <span class="n">dmtype</span> <span class="o">==</span> <span class="s1">&#39;data_surface&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: More than 3 columns in csv file. Neglected them&#39;</span><span class="p">)</span>
+        <span class="n">dm_surf</span> <span class="o">=</span> <span class="n">data_surface</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                               <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Stores header in the comments</span>
+        <span class="n">dm_surf</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dm_surf</span></div>
+
+
+<div class="viewcode-block" id="data_stack_x"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.data_stack_x">[docs]</a><span class="k">def</span> <span class="nf">data_stack_x</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Stack datamodules along the x axis.</span>
+
+<span class="sd">    It returns a new data module that contains the same parameters of the</span>
+<span class="sd">    first argument.</span>
+
+<span class="sd">    Automatically detects data_line and data_surface</span>
+<span class="sd">    Automatically sorts data along x.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">        &gt;&gt;&gt; total = data_stack_x((data1,data2,data3,...))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Helper functions</span>
+    <span class="k">def</span> <span class="nf">average_duplicates</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function which averages values if two frequencies are the same&quot;&quot;&quot;</span>
+        <span class="n">folded</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                            <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">folded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">/=</span> <span class="n">counts</span>
+
+        <span class="k">return</span> <span class="n">folded</span><span class="p">,</span> <span class="n">output</span>
+
+    <span class="n">data_type</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Copy, otherwise the argument will be modified</span>
+    <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">)):</span>
+        <span class="c1"># Go through the other arrays and append</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_type</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error, the data type are different&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TYPE Mismatch&#39;</span><span class="p">)</span>
+
+        <span class="n">tmp</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+
+        <span class="c1"># Data2d</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_table</span><span class="p">):</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+        <span class="c1"># Complex data</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_complex</span><span class="p">):</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+        <span class="c1"># Data3d</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_surface</span><span class="p">):</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+
+    <span class="c1"># Sort frequencies</span>
+    <span class="n">idxs_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">tmp</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">idxs_sorted</span><span class="p">]</span>
+
+    <span class="c1"># Data2d</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_table</span><span class="p">):</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idxs_sorted</span><span class="p">]</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">average_duplicates</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tmp</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+    <span class="c1"># Complex data</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_complex</span><span class="p">):</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">idxs_sorted</span><span class="p">]</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tmp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">average_duplicates</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tmp</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="c1"># Data3d</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_surface</span><span class="p">):</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">idxs_sorted</span><span class="p">]</span>
+        <span class="c1"># Implement averaging</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No routing for this kind of data&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">tmp</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">tmp</span></div>
+
+
+<div class="viewcode-block" id="average_data"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.average_data">[docs]</a><span class="k">def</span> <span class="nf">average_data</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform weighted average of multiple datamodules</span>
+
+<span class="sd">    This function performs the weighted average of the data passed as an</span>
+<span class="sd">    argument, the date must be given in a tuple/list together with the</span>
+<span class="sd">    weight (1 = normal average).</span>
+
+<span class="sd">    The function returns a new data module that contains the same</span>
+<span class="sd">    parameters of the first argument, it automatically detects different</span>
+<span class="sd">    data types.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args</span>
+<span class="sd">        Tuple of tuples. First element of each tuple is a datamodule, the</span>
+<span class="sd">        second the weighting of this datamodule for averaging</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    DataModule</span>
+<span class="sd">        DataModule of the same type for the averaged data</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">        &gt;&gt;&gt; average = average_data((data1,3),(data2,5))</span>
+<span class="sd">        &gt;&gt;&gt; average = average_data((data1,1),(data2,1))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_table</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">tmp_ysel</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">return_y</span><span class="p">()</span>
+        <span class="n">tmp_xsel</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">return_x</span><span class="p">()</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp_ysel</span><span class="p">))</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_table</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error, the data type are different&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TYPE Mismatch&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">return_x</span><span class="p">()</span> <span class="o">==</span> <span class="n">tmp_xsel</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: x-axis must be the same: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;WRONGAXIS&#39;</span><span class="p">)</span>
+
+            <span class="n">acc</span> <span class="o">+=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">return_y</span><span class="p">()</span> <span class="o">*</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">weight</span> <span class="o">+=</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">((</span><span class="n">tmp_xsel</span><span class="p">,</span> <span class="n">acc</span> <span class="o">/</span> <span class="n">weight</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tmp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Need implementation, only data_table supported&#39;</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    elif isinstance(args[0][0], data_complex):</span>
+<span class="sd">        tmp = args[0][0].copy()</span>
+<span class="sd">        acc = np.zeros(len(tmp.return_vsel()), dtype=np.complex)</span>
+<span class="sd">        weight = 0</span>
+<span class="sd">        for count, a in enumerate(args):</span>
+<span class="sd">            if not isinstance(a[0], data_complex):</span>
+<span class="sd">                print(&#39;Error, the data type are different&#39;)</span>
+<span class="sd">                raise Exception(&#39;TYPE Mismatch&#39;)</span>
+
+<span class="sd">            if not (a[0].return_xsel() == tmp.return_xsel()).all():</span>
+<span class="sd">                print(&#39;ERROR: x-axis must be the same: &#39;+str(count))</span>
+<span class="sd">                raise Exception(&#39;WRONGAXIS&#39;)</span>
+
+<span class="sd">            acc += a[0].return_vsel()*a[1]</span>
+<span class="sd">            weight += a[1]</span>
+
+<span class="sd">        tmp.load_cplx_var(tmp.return_xsel(), acc/weight)</span>
+
+<span class="sd">        return tmp</span>
+
+<span class="sd">    elif isinstance(args[0][0], data_surface):</span>
+<span class="sd">        tmp = args[0][0].copy()</span>
+<span class="sd">        acc = np.zeros((len(tmp.return_xsel()), len(tmp.return_ysel())))</span>
+<span class="sd">        weight = 0</span>
+<span class="sd">        for count, a in enumerate(args):</span>
+<span class="sd">            if not isinstance(a[0], data_surface):</span>
+<span class="sd">                print(&#39;Error, the data type are different&#39;)</span>
+<span class="sd">                raise Exception(&#39;TYPE Mismatch&#39;)</span>
+
+<span class="sd">            if not (a[0].return_xsel() == tmp.return_xsel()).all():</span>
+<span class="sd">                print(&#39;ERROR: x-axis must be the same: &#39;+str(count))</span>
+<span class="sd">                raise Exception(&#39;WRONGAXIS&#39;)</span>
+
+<span class="sd">            if not (a[0].return_ysel() == tmp.return_ysel()).all():</span>
+<span class="sd">                print(&#39;ERROR: y-axis must be the same: &#39;+str(count))</span>
+<span class="sd">                raise Exception(&#39;WRONGAXIS&#39;)</span>
+
+<span class="sd">            acc += a[0].return_zsel()*a[1]</span>
+<span class="sd">            weight += a[1]</span>
+
+<span class="sd">        tmp.load_var(tmp.return_xsel(), tmp.return_ysel(),  acc/weight)</span>
+
+<span class="sd">        return tmp</span>
+<span class="sd">    else:</span>
+<span class="sd">        print(&#39;No routing for this kind of data&#39;)</span>
+<span class="sd">        return None</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="cleandat"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.cleandat">[docs]</a><span class="k">def</span> <span class="nf">cleandat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;AUtoclean data.</span>
+
+<span class="sd">    Take a two row data matrix (x,y) and do the following:</span>
+<span class="sd">    1. Sort data in ascending x order</span>
+<span class="sd">    2. Find unique values of x and calculate average y</span>
+<span class="sd">    3. Add a third row with standard deviation for multiple data</span>
+<span class="sd">    (indication of statistical error)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : list</span>
+<span class="sd">        X values. Both arrays get sorted according to ascending x order</span>
+<span class="sd">    y : list</span>
+<span class="sd">        Y values.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    tuple(list, list, list)</span>
+<span class="sd">        x, y, y_errs</span>
+<span class="sd">        Outputs the processed x and y array and gives also the std deviations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">x_sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x_srt</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">x_sort_idx</span><span class="p">]</span>
+    <span class="n">y_srt</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">x_sort_idx</span><span class="p">]</span>
+
+    <span class="c1"># Find unique values and average for same frequency</span>
+    <span class="n">folded</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">x_srt</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Average if multiple y values exist</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">folded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">y_srt</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">/=</span> <span class="n">counts</span>
+
+    <span class="c1"># Calculate std deviations if multiple values exist</span>
+    <span class="n">y_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">y_err</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="n">y_srt</span> <span class="o">-</span> <span class="n">output</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">y_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_err</span> <span class="o">/</span> <span class="n">counts</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">folded</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">y_err</span></div>
+
+
+<div class="viewcode-block" id="split"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.split">[docs]</a><span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">range_vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function gets a list (array) of ranges (must have even members)</span>
+<span class="sd">    and returns the data in x that fall within those ranges.</span>
+
+<span class="sd">    TODO</span>
+<span class="sd">    ----</span>
+<span class="sd">    Do we need this function? And for what purpose?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert input to row vectors</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">ranges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">range_vector</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+    <span class="c1"># initialize variables</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># check if &quot;ranges&quot; has even elements</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">range_vector</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Number of range elements must be even.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Making the new index and output</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ranges</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)):</span>
+            <span class="n">idx_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">ranges</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">ranges</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx_tmp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">idx</span><span class="p">,</span> <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="upgrade_dm"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.upgrade_dm">[docs]</a><span class="k">def</span> <span class="nf">upgrade_dm</span><span class="p">(</span><span class="n">old_dm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Upgrade datamodules to newest version.</span>
+
+<span class="sd">    Function to convert old datamodule to current datamodule.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    old_dm : DataModule</span>
+<span class="sd">        DataModule to upgrade</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    -----</span>
+<span class="sd">     The fit will be lost</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    DataModule</span>
+<span class="sd">        Updated datamodule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check and initialize right data module type</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="s1">&#39;__version__&#39;</span><span class="p">):</span>
+            <span class="n">vers</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">__version__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vers</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">version</span>
+        <span class="n">vers_f</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="c1"># Old datamodule had no version number --&gt; assign 0.0.0</span>
+        <span class="n">vers</span> <span class="o">=</span> <span class="s1">&#39;0.0.0&#39;</span>
+        <span class="n">vers_f</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+
+    <span class="n">new_vers</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">vers_f</span> <span class="o">&gt;</span> <span class="n">new_vers</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loaded Datamodule newer than your installed version</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+              <span class="s1">&#39;Please update python_repo (git pull)&#39;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">vers_f</span> <span class="o">&lt;</span> <span class="n">new_vers</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="n">current_types</span><span class="p">):</span>
+        <span class="c1"># Check if old datamodule is below current version and upgrade if</span>
+        <span class="c1"># Initialization</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">old_dm</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;&lt;class &#39;DataModule.data_line.data_line&#39;&gt;&quot;</span><span class="p">:</span>
+            <span class="n">old_dm</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">data_line</span>
+        <span class="k">elif</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">old_dm</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;&lt;class &#39;DataModule.data_xy.data_xy&#39;&gt;&quot;</span><span class="p">:</span>
+            <span class="n">old_dm</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">data_table</span>
+            <span class="n">old_dm</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">old_dm</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="n">data_complex</span><span class="p">):</span>
+            <span class="c1"># Needs to be first since it is also instance of data_table</span>
+            <span class="n">data_new</span> <span class="o">=</span> <span class="n">data_complex</span><span class="p">(</span><span class="n">old_dm</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">idx_min</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">idx_max</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">circuit</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">circuit</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">fitresults</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">fitresults</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">fitresults_full_model</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">fitresults_full_model</span>
+
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="p">(</span><span class="n">data_line</span><span class="p">,</span> <span class="n">data_table</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Upgrade to data_table&quot;</span><span class="p">)</span>
+            <span class="c1"># Data line</span>
+            <span class="n">data_new</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="n">old_dm</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">xmin</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">xmax</span>  <span class="c1"># Selected</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">idx_min</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">idx_max</span>
+
+            <span class="c1"># For newer datamodules: Update dataframe</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">df</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">name_x</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">name_x</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">name_y</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">name_y</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="c1"># TODO Sort data</span>
+            <span class="c1"># Fit</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">_fit_function_code</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_executed</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_function</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">_fit_function</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_function_code</span> <span class="o">=</span> <span class="n">tmp</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_parameters</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">_fit_parameters</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_par_errors</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">_fit_par_errors</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_data_error</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">_fit_data_error</span>
+                <span class="n">data_new</span><span class="o">.</span><span class="n">_fit_labels</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">_fit_labels</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="n">data_grid</span><span class="p">):</span>
+            <span class="n">data_new</span> <span class="o">=</span> <span class="n">data_grid</span><span class="p">([</span><span class="n">old_dm</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">z</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">old_dm</span><span class="o">.</span><span class="n">name_x</span><span class="p">,</span>
+                                  <span class="n">old_dm</span><span class="o">.</span><span class="n">name_y</span><span class="p">,</span>
+                                  <span class="n">old_dm</span><span class="o">.</span><span class="n">name_v</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="n">data_surface</span><span class="p">):</span>
+            <span class="n">data_new</span> <span class="o">=</span> <span class="n">data_grid</span><span class="p">([</span><span class="n">old_dm</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">T</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_dm</span><span class="p">,</span> <span class="n">data_IQ</span><span class="p">):</span>
+            <span class="n">data_new</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">__version__</span> <span class="o">=</span> <span class="n">__version__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Datamodule </span><span class="si">{}</span><span class="s1"> type not recognized&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">old_dm</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TypeError&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Update parameters</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">comments</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">temp_start_time</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">temp_start_time</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">temp_stop_time</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">temp_stop_time</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">data_new</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">time_stop</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">date_format</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">date_format</span>
+            <span class="n">data_new</span><span class="o">.</span><span class="n">save_date_format</span> <span class="o">=</span> <span class="n">old_dm</span><span class="o">.</span><span class="n">save_date_format</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">oV</span> <span class="o">=</span> <span class="n">vers</span>
+            <span class="n">nV</span> <span class="o">=</span> <span class="n">data_new</span><span class="o">.</span><span class="n">__version__</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">Conversion </span><span class="si">{}</span><span class="s1"> --&gt; </span><span class="si">{}</span><span class="s1"> executed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oV</span><span class="p">,</span> <span class="n">nV</span><span class="p">),</span>
+                  <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Added \r to move cursor back to beginning if multiple files are</span>
+            <span class="c1"># updated.</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">Conversion Unknown version --&gt; </span><span class="si">{}</span><span class="s1"> executed&#39;</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_new</span><span class="o">.</span><span class="n">__version__</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_new</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># No need to upgrade</span>
+        <span class="k">return</span> <span class="n">old_dm</span></div>
+
+
+<span class="c1"># TODO</span>
+<span class="c1">###############################################################################</span>
+<span class="c1"># NEED RETHINKING #############################################################</span>
+<div class="viewcode-block" id="data_stack_y"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.data_stack_y">[docs]</a><span class="k">def</span> <span class="nf">data_stack_y</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function cannot work, because you stack Frequencies horizontally</span>
+<span class="sd">        and stack the z value vertically.</span>
+
+<span class="sd">        Ideas: - Use vertical x-axis. (can lead to complications with existing</span>
+<span class="sd">                 functions)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_type</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">data_surface</span><span class="p">):</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">)):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">!=</span> <span class="n">data_type</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error, the data type are different&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TYPE Mismatch&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: x-axis must be the same: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+                <span class="k">return</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;WRONGAXIS&#39;</span><span class="p">)</span>
+
+            <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tmp</span>
+
+    <span class="n">data_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">data_type</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_table</span><span class="p">()):</span>
+        <span class="c1"># all modules must be the same</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># I have to copy it, otherwise the argument will be modified</span>
+
+        <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">)):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">!=</span> <span class="n">data_type</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error, the data type are different&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TYPE Mismatch&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: x-axis must be the same: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;WRONGAXIS&#39;</span><span class="p">)</span>
+
+            <span class="n">tmp</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+
+        <span class="n">tmp</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">tmp</span>
+
+    <span class="k">elif</span> <span class="n">data_type</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_complex</span><span class="p">()):</span>
+        <span class="c1"># all modules must be the same</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># I have to copy it, otherwise the argument will be modified</span>
+
+        <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">)):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">!=</span> <span class="n">data_type</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error, the data type are different&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TYPE Mismatch&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: x-axis must be the same: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;WRONGAXIS&#39;</span><span class="p">)</span>
+
+            <span class="n">tmp</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+
+        <span class="n">tmp</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">tmp</span>
+
+
+    <span class="k">elif</span> <span class="n">data_type</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_surface</span><span class="p">()):</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># I have to copy it, otherwise the argument will be modified</span>
+
+        <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">)):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">datas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">!=</span> <span class="n">data_type</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error, the data type are different&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TYPE Mismatch&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: x-axis must be the same: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+                <span class="k">return</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;WRONGAXIS&#39;</span><span class="p">)</span>
+
+            <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">tmp</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tmp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No routing for this kind of data&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="nice_plot"><a class="viewcode-back" href="../../datamodule.html#DataModule.functions.nice_plot">[docs]</a><span class="k">def</span> <span class="nf">nice_plot</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">plot_style</span><span class="o">=</span><span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+              <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="n">xoffset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yoffset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">fontname</span><span class="o">=</span><span class="s1">&#39;Bitstream Vera Serif&#39;</span><span class="p">,</span> <span class="n">box_param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        functionf nice_plot(figsize=(15,15),plot_style=&#39;bo&#39;,xlabel=&#39;&#39;,ylabel=&#39;&#39;,title=&#39;&#39;,fontsize=22,xoffset=None, yoffset=None,fontname=&#39;Bitstream Vera Serif&#39;,legend=None,legend_pos=0,box_param=None):</span>
+<span class="sd">        </span>
+<span class="sd">        given a data module 2D, this function can be used to plot the data in a nicer way (for talks or articles). If the data has been fitted, it will also print the fit (it can be disabled, def is on).</span>
+
+<span class="sd">                </span>
+<span class="sd">        xoffset and yoffset can be used to use a scientific notation on the axis</span>
+<span class="sd">        fontname=&#39;Bitstream Vera Serif&#39; HINT: Use font_list() to have a list of the available fonts</span>
+
+<span class="sd">        legend_pos: 0 is auto, 1 to 4 are the angles</span>
+<span class="sd">        legend: must be a list of two strings, ex: [&#39;data&#39;,&#39;fit&#39;]</span>
+<span class="sd">        box_param: must be a list of 4 coordinates and a text, ex: ([0.01,0.01,0.1,0.1], &#39;testing the box&#39;)</span>
+<span class="sd">        The first two coordinates are the position of the top-left angle in % of the total plot size.</span>
+<span class="sd">        The others are width and length, always in total % plot size</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">})</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">),</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
+
+    <span class="c1"># axis ticks and tick labels</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="c1"># axis ticks and tick labels</span>
+
+    <span class="n">tickfonts</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">font_manager</span><span class="o">.</span><span class="n">FontProperties</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="n">fontname</span><span class="p">,</span>
+                                                       <span class="n">size</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()</span> <span class="o">+</span> <span class="n">tmp</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()):</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">set_fontproperties</span><span class="p">(</span><span class="n">tickfonts</span><span class="p">)</span>
+
+    <span class="c1"># plt.xaxis.get_major_formatter().set_useOffset(False)</span>
+    <span class="c1"># plt.yaxis.get_major_formatter().set_useOffset(False)</span>
+    <span class="k">if</span> <span class="n">xoffset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xconf</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xconf</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">xconf</span><span class="o">.</span><span class="n">set_useOffset</span><span class="p">(</span><span class="n">xoffset</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">yoffset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">yconf</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">yconf</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">yconf</span><span class="o">.</span><span class="n">set_useOffset</span><span class="p">(</span><span class="n">yoffset</span><span class="p">)</span>
+
+    <span class="n">tmp</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">xconf</span><span class="p">)</span>
+    <span class="n">tmp</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">yconf</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">box_param</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">box_param</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">box_param</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">box_param</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+                 <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;square&#39;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span></div>
+        <span class="c1"># plt.text(0.1,0.16,box_param[1],fontname=fontname)</span>
+        <span class="c1"># plt.setp(box,xlim=(0,2),xticks=[],yticks=[])</span>
+        <span class="c1"># plt.subplot(111)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Christian Schneider.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

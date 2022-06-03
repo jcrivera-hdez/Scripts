@@ -1,0 +1,2046 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DataModule &mdash; DataModule 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Python Repository" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> DataModule
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DataModule</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-DataModule.functions">Basic DataModule Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#datamodule-classes">DataModule Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#base">Base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-table">data_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-complex">data_complex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-grid">data_grid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-DataModule.fit_functions">fit_functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting">plotting</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DataModule</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>DataModule</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/datamodule.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="datamodule">
+<span id="id1"></span><h1>DataModule<a class="headerlink" href="#datamodule" title="Permalink to this headline">¶</a></h1>
+<p>This is a object for storing and processing our data.
+It comes with various handy functions and classes. Please chose your class
+depending on your data structure.</p>
+<span class="target" id="module-DataModule"></span><div class="section" id="module-DataModule.functions">
+<span id="basic-datamodule-functions"></span><h2>Basic DataModule Functions<a class="headerlink" href="#module-DataModule.functions" title="Permalink to this headline">¶</a></h2>
+<p>Basic DataModule functions.</p>
+<p>This contains functions typically used for the datamodule, like loading and
+saving.</p>
+<dl class="function">
+<dt id="DataModule.functions.average_data">
+<code class="descclassname">DataModule.functions.</code><code class="descname">average_data</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#average_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.average_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform weighted average of multiple datamodules</p>
+<p>This function performs the weighted average of the data passed as an
+argument, the date must be given in a tuple/list together with the
+weight (1 = normal average).</p>
+<p>The function returns a new data module that contains the same
+parameters of the first argument, it automatically detects different
+data types.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*args</strong> – Tuple of tuples. First element of each tuple is a datamodule, the
+second the weighting of this datamodule for averaging</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">DataModule of the same type for the averaged data</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">DataModule</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">average</span> <span class="o">=</span> <span class="n">average_data</span><span class="p">((</span><span class="n">data1</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="n">data2</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">average</span> <span class="o">=</span> <span class="n">average_data</span><span class="p">((</span><span class="n">data1</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="n">data2</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.cleandat">
+<code class="descclassname">DataModule.functions.</code><code class="descname">cleandat</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#cleandat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.cleandat" title="Permalink to this definition">¶</a></dt>
+<dd><p>AUtoclean data.</p>
+<p>Take a two row data matrix (x,y) and do the following:
+1. Sort data in ascending x order
+2. Find unique values of x and calculate average y
+3. Add a third row with standard deviation for multiple data
+(indication of statistical error)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – X values. Both arrays get sorted according to ascending x order</li>
+<li><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Y values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">x, y, y_errs
+Outputs the processed x and y array and gives also the std deviations</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.6)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.data_stack_x">
+<code class="descclassname">DataModule.functions.</code><code class="descname">data_stack_x</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#data_stack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.data_stack_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stack datamodules along the x axis.</p>
+<p>It returns a new data module that contains the same parameters of the
+first argument.</p>
+<p>Automatically detects data_line and data_surface
+Automatically sorts data along x.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">total</span> <span class="o">=</span> <span class="n">data_stack_x</span><span class="p">((</span><span class="n">data1</span><span class="p">,</span><span class="n">data2</span><span class="p">,</span><span class="n">data3</span><span class="p">,</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.data_stack_y">
+<code class="descclassname">DataModule.functions.</code><code class="descname">data_stack_y</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#data_stack_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.data_stack_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function cannot work, because you stack Frequencies horizontally
+and stack the z value vertically.</p>
+<dl class="docutils">
+<dt>Ideas: - Use vertical x-axis. (can lead to complications with existing</dt>
+<dd>functions)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.load_csv">
+<code class="descclassname">DataModule.functions.</code><code class="descname">load_csv</code><span class="sig-paren">(</span><em>filename</em>, <em>dmtype=None</em>, <em>delimiter='</em>, <em>'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#load_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.load_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a .csv file using pandas and create a datamodule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Filename of csv</li>
+<li><strong>dmtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Choose from ‘data_line’, ‘data_complex’, ‘data_surface’
+Used data type for datamodule. If None, it will try
+to figure out the data type automatically from the csv
+structure.</li>
+<li><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Delimiter for .csv file</li>
+<li><strong>**kwargs</strong> – Keywords for pandas for csv import</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A datamodule best fitting to the csv data or specified by dmtype</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.load_datamodule">
+<code class="descclassname">DataModule.functions.</code><code class="descname">load_datamodule</code><span class="sig-paren">(</span><em>filename</em>, <em>upgrade=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#load_datamodule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.load_datamodule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a datamodule</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Filepath</li>
+<li><strong>upgrade</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Upgrade datamodule to newest version</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Returns a datamodule</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.load_folder">
+<code class="descclassname">DataModule.functions.</code><code class="descname">load_folder</code><span class="sig-paren">(</span><em>folderpath</em>, <em>word_search=None</em>, <em>dm_pars=None</em>, <em>regexp='[\\w+\\-.&#64;&lt;&gt;]+.dm$'</em>, <em>sort=True</em>, <em>sort_par=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#load_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.load_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads all datamodules from a specified folder path.</p>
+<p>Accepts a keyword to filter files or a regular expression to obtain
+parameters from filename.</p>
+<p>Sorts the datamodules by the first given parameter. Either in dm_pars
+or in the regular expression. If you wish to not sort it, pass <cite>sort</cite> False
+as argument.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">load_folder</span><span class="p">(</span><span class="s1">&#39;./fluxsweep/&#39;</span><span class="p">,</span> <span class="n">word_search</span><span class="o">=</span><span class="s1">&#39;NewRun&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">load_folder</span><span class="p">(</span><span class="s1">&#39;./fluxsweep/&#39;</span><span class="p">,</span> <span class="n">regexp</span><span class="o">=</span><span class="s1">&#39;[\w+\-.]+I_(?P&lt;current&gt;[\d\-]+)[\w+\-.]&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>folderpath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Path to the folder</li>
+<li><strong>word_search</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Only files containing this string will be added</li>
+<li><strong>dm_pars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>)</em><em>, </em><em>optional</em>) – Extract this parameters out of the datamodules
+The first parameter is the sorting parameter</li>
+<li><strong>regexp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Parameter to specify how the file name should look like. If given a
+parameter with (?P&lt;par&gt;) it will added to the dm_pars.
+<a class="reference external" href="https://docs.python.org/3.5/library/re.html">https://docs.python.org/3.5/library/re.html</a></li>
+<li><strong>sort</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Sort the datamodules according to first parameter</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Returns a tuple. First element is a sorted list of datamodules, the
+second argument is a dictionary with the sorted parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.6)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a>(DataModule), <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)">dict</a>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.load_folder_grid">
+<code class="descclassname">DataModule.functions.</code><code class="descname">load_folder_grid</code><span class="sig-paren">(</span><em>folder</em>, <em>par_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#load_folder_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.load_folder_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a folder and creates a data_grid from it.</p>
+<p>Supports unequal x and y axes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Folder</li>
+<li><strong>par_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Name of the data_module parameter used for x axis of data_grid</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.nice_plot">
+<code class="descclassname">DataModule.functions.</code><code class="descname">nice_plot</code><span class="sig-paren">(</span><em>figsize=(15</em>, <em>15)</em>, <em>plot_style='bo'</em>, <em>xlabel=''</em>, <em>ylabel=''</em>, <em>title=''</em>, <em>fontsize=22</em>, <em>xoffset=None</em>, <em>yoffset=None</em>, <em>fontname='Bitstream Vera Serif'</em>, <em>box_param=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#nice_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.nice_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>functionf nice_plot(figsize=(15,15),plot_style=’bo’,xlabel=’‘,ylabel=’‘,title=’‘,fontsize=22,xoffset=None, yoffset=None,fontname=’Bitstream Vera Serif’,legend=None,legend_pos=0,box_param=None):</p>
+<p>given a data module 2D, this function can be used to plot the data in a nicer way (for talks or articles). If the data has been fitted, it will also print the fit (it can be disabled, def is on).</p>
+<p>xoffset and yoffset can be used to use a scientific notation on the axis
+fontname=’Bitstream Vera Serif’ HINT: Use font_list() to have a list of the available fonts</p>
+<p>legend_pos: 0 is auto, 1 to 4 are the angles
+legend: must be a list of two strings, ex: [‘data’,’fit’]
+box_param: must be a list of 4 coordinates and a text, ex: ([0.01,0.01,0.1,0.1], ‘testing the box’)
+The first two coordinates are the position of the top-left angle in % of the total plot size.
+The others are width and length, always in total % plot size</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.plot_multiple">
+<code class="descclassname">DataModule.functions.</code><code class="descname">plot_multiple</code><span class="sig-paren">(</span><em>dm_list</em>, <em>label_list</em>, <em>figure=None</em>, <em>colormap=None</em>, <em>engine='hv'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#plot_multiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.plot_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot multiple Datamodules in a single bokeh/pyplot figure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dm_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em>) – List of datamodules: [dm1, dm2, …]</li>
+<li><strong>label_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em>) – List of labels for the plot: [“Data of dm1”, “Data of dm2”]</li>
+<li><strong>figure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><em>object</em></a>) – Optional: Figure to plot in</li>
+<li><strong>colormap</strong> (<em>List of colors</em>) – Optional: Bokeh colorpalette. You have to import it first from
+bokeh.palettes or specify itself. Format: [“#FFFFFF”, “#01245”, …]</li>
+<li><strong>engine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Optional: Specify if Plot should be in bokeh or pyplot</li>
+<li><strong>kwargs</strong> (<em>keywords</em>) – Optional: Keywords for bokeh or pyplot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.split">
+<code class="descclassname">DataModule.functions.</code><code class="descname">split</code><span class="sig-paren">(</span><em>vector</em>, <em>range_vector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a list (array) of ranges (must have even members)
+and returns the data in x that fall within those ranges.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Do we need this function? And for what purpose?</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.functions.upgrade_dm">
+<code class="descclassname">DataModule.functions.</code><code class="descname">upgrade_dm</code><span class="sig-paren">(</span><em>old_dm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/functions.html#upgrade_dm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.functions.upgrade_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upgrade datamodules to newest version.</p>
+<p>Function to convert old datamodule to current datamodule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>old_dm</strong> (<em>DataModule</em>) – DataModule to upgrade</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The fit will be lost</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Updated datamodule.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">DataModule</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="datamodule-classes">
+<h2>DataModule Classes<a class="headerlink" href="#datamodule-classes" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>DataModule</cite> has several classes, depending on the type of data you want to
+store.</p>
+<div class="section" id="base">
+<h3>Base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="DataModule.data_module_base">
+<em class="property">class </em><code class="descclassname">DataModule.</code><code class="descname">data_module_base</code><a class="reference internal" href="_modules/DataModule/base.html#data_module_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_module_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class of DataModule</p>
+<p>These functions is used by every datamodule.</p>
+<dl class="method">
+<dt id="DataModule.data_module_base.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/base.html#data_module_base.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_module_base.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy datamodule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of this datamodule</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Datamodule</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_module_base.insert_par">
+<code class="descname">insert_par</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/base.html#data_module_base.insert_par"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_module_base.insert_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add parameters to the data module given by keywords.</p>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">insert_par</span><span class="p">(</span><span class="n">temp</span><span class="o">=</span> <span class="mf">25e-3</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_module_base.remove_par">
+<code class="descname">remove_par</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/base.html#data_module_base.remove_par"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_module_base.remove_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove parameter by key from data module parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Key of parameter dictionary</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_module_base.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>fname</em>, <em>useDate=True</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/base.html#data_module_base.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_module_base.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save DataModule</p>
+<p>The date will be added in front of the filename and a ‘.dm’ extension
+will be added automatically to fname, if not already given.</p>
+<p>If the file already exists, the existing file will be moved in a
+subfolder named duplicates. If this happens multiple times, numbers
+will be added to the files in the duplicates folder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Filename to save</li>
+<li><strong>useDate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Add Date in front of fname</li>
+<li><strong>force</strong> (<em>Overwrite existing file.</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_module_base.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>xrng=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/base.html#data_module_base.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_module_base.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select range of data.</p>
+<p>Plots, fits, etc will then only be applied on this range.
+If nothing is specified all the data will be select</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xrng</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a>) – Start and Stop values of the range in a list [start, stop]. Eg. [1.4e9, 6.5e9]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="data-table">
+<h3>data_table<a class="headerlink" href="#data-table" title="Permalink to this headline">¶</a></h3>
+<p>Basic class for real x, y data.</p>
+<dl class="class">
+<dt id="DataModule.data_table">
+<em class="property">class </em><code class="descclassname">DataModule.</code><code class="descname">data_table</code><span class="sig-paren">(</span><em>data_arrays=None</em>, <em>data_names=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for table like data with one or more independent variables and
+one or more dependent variables</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_arrays</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em><em>, </em><em>np.array</em>) – Data to save. Format should be
+[array_x, array_y, array_z, …]</li>
+<li><strong>data_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em><em>, </em><em>np.array</em>) – Labels for the data. Format should be
+[‘Label first axis’, ‘Label second axis’, …]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="DataModule.data_table.add_column">
+<code class="descname">add_column</code><span class="sig-paren">(</span><em>column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.add_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.add_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new column to the dataframe. New Column has to be equal or
+shorter then first column (independent variable)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>column</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em>) – New column to add</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Name for column</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>fitfunc</em>, <em>fit_p_init</em>, <em>boundaries=None</em>, <em>plot=True</em>, <em>plot_init=True</em>, <em>plot_params=True</em>, <em>labels=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit <cite>fitfunc</cite> to data with initial fit parameters <cite>fit_p_init</cite></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>After the fit, the data module will contain the fit, however it
+should be saved again. Don’t forget this.</p>
+<p class="last">The fit will be performed on the stored data, not the plotted
+one. If you use xscale or yscale different than the one you
+plot, you should take it into account</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fitfunc</strong> (<em>func</em>) – Function to fit to. There exist already some functions in the
+DataModule library (DataModule/fit_functions)</li>
+<li><strong>fit_p_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Initial (guessed) parameters</li>
+<li><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot fit after result</li>
+<li><strong>plot_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot initial guess.</li>
+<li><strong>plot_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Print paramaters for fit</li>
+<li><strong>labels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Label for fitparameters. E.g. [‘offset’, ‘amplitude’, ‘fr’]</li>
+<li><strong>**kwargs</strong> (<em>keywords</em>) – Keywords for fitfunction like maxfev=10000, epsfcn=1e-10,
+factor=0.1, xtol=1e-9, ftol=1e-9…</li>
+<li><strong>the end of the fit the data module will contain the function</strong> (<em>At</em>) – </li>
+<li><strong>to fit and some fit-related functions will be enabled.</strong> (<em>used</em>) – </li>
+<li><strong>fit parameters are stored in</strong> (<em>The</em>) – </li>
+<li><strong>self._fit_par_errors</strong> (<em>self._fit_parameters</em><em>,</em>) – </li>
+<li><strong>the average error</strong><strong> (</strong><strong>sigma</strong><strong>) </strong><strong>in self._fit_data_error.</strong> (<em>and</em>) – </li>
+<li><strong>Returns</strong> – </li>
+<li><strong>list</strong><strong>, </strong><strong>float</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>,</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.fit_func">
+<code class="descname">fit_func</code><span class="sig-paren">(</span><em>x=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.fit_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.fit_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates values of fit function for an x-array/values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>np.array</em>) – X values. None means same x data as datamodule.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Would like to rename the function to calc_fitfunc(self, x=None)</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.fit_pars">
+<code class="descname">fit_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.fit_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.fit_pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the fit parameters as pandas DataFrame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.import_data">
+<code class="descname">import_data</code><span class="sig-paren">(</span><em>data_arrays</em>, <em>data_names=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.import_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.import_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import data from new array. Naming highly recommended!
+Assumes first given array is the array of the independent variable.
+:param data_arrays: List of data arrays. Structure</p>
+<blockquote>
+<div>[[x, x, x, x, ….], [y, y, y,….], [z, z, z, z, …]</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em><em>, </em><em>np.array</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a>) – List of names for arrays:
+[‘x’, ‘y’, ‘Resistances’, … ]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.interp">
+<code class="descname">interp</code><span class="sig-paren">(</span><em>xnew</em>, <em>kind='cubic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.interp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.interp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolates data to new x values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xnew</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>np.array</em>) – New x array</li>
+<li><strong>kind</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Kind of interpolation.
+Choose between ‘linear’, ‘nearest’, ‘zero’, ‘slinear’, ‘quadratic’,
+‘cubic’</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Returns a new datamodule.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d1</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">load_datamodule</span><span class="p">(</span><span class="s1">&#39;foo.dm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xnew</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">d1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d2</span> <span class="o">=</span> <span class="n">d1</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">xnew</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.localmax">
+<code class="descname">localmax</code><span class="sig-paren">(</span><em>max_threshold=None</em>, <em>npoints=1</em>, <em>mode='clip'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.localmax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.localmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain all the local maxima</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>min_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Only consider maxima above this value</li>
+<li><strong>npoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – How many points on each side to use for the comparison.</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – ‘clip’ (def) or ‘wrap’. If wrap is used, the data will considered
+periodic-like</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">x and y values of local maxima</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.localmin">
+<code class="descname">localmin</code><span class="sig-paren">(</span><em>min_threshold=None</em>, <em>npoints=1</em>, <em>mode='clip'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.localmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.localmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain all the local minimas</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>min_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Only consider minima below this value</li>
+<li><strong>npoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – How many points on each side to use for the comparison.</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – ‘clip’ (def) or ‘wrap’. If wrap is used, the data will considered
+periodic-like</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">x and y values of local minima</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>style='-o'</em>, <em>x_col=None</em>, <em>y_col=None</em>, <em>color=None</em>, <em>xscale=1</em>, <em>yscale=1</em>, <em>plot_fit=True</em>, <em>linewidth=1.5</em>, <em>markersize=3</em>, <em>fit_linewidth=1</em>, <em>plot_errors=True</em>, <em>legend=None</em>, <em>legend_pos=0</em>, <em>engine=None</em>, <em>title=''</em>, <em>show=True</em>, <em>fig=None</em>, <em>fitcolor='r'</em>, <em>fit_on_top=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data and optionally the fit.</p>
+<p>Choose between two plot-engines: ‘bokeh’ and ‘pyplot’</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>style</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Specify plot style in matplotlib language. E.g. ‘b-o’ for
+blue dots connected with a line.</li>
+<li><strong>x_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a>) – Name of column for plot on x axis. If none is given, first column is
+taken</li>
+<li><strong>y_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a>) – Name of column for plot on y axis. If none is given, second column
+is taken</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Color shortcut (eg. ‘b’) or specific color like ‘#123456’.
+Type cc to see available colors.</li>
+<li><strong>xscale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – X scaling</li>
+<li><strong>yscale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Y scaling</li>
+<li><strong>plot_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot the fit if available</li>
+<li><strong>linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Thickness of lines</li>
+<li><strong>markersize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Size of markers</li>
+<li><strong>fit_linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Thickness of fit line</li>
+<li><strong>plot_errors</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot error bars</li>
+<li><strong>legend</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Custom legend for plot [‘Label 1’, ‘Label 2’]]</li>
+<li><strong>legend_pos</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Location of legend</li>
+<li><strong>engine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Plot engine. Choose between ‘bokeh’ and ‘pyplot’</li>
+<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Title of the plot</li>
+<li><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Directly show plot. Useful if one wants to add labels etc.
+and show plot afterwards.</li>
+<li><strong>fig</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><em>object</em></a>) – Figure to plot into (bokeh/matplotlib figure object)</li>
+<li><strong>fitcolor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Color shortcut (like ‘b’) or specific color (like #123456) for
+fit</li>
+<li><strong>fit_on_top</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Data over fit or fit over data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Returns a fit object for bokeh or matplotlib. This is useful, if
+you want to add for example another points, lines, labels, etc
+afterwards.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)">object</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.plot_all">
+<code class="descname">plot_all</code><span class="sig-paren">(</span><em>colormap=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.plot_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.plot_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fast plot of the whole data in holoviews</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.plot_hv">
+<code class="descname">plot_hv</code><span class="sig-paren">(</span><em>x=None</em>, <em>y=None</em>, <em>height=400</em>, <em>width=800</em>, <em>title=''</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.plot_hv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.plot_hv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot table with Holoviews</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Column name(s) used for x axis</li>
+<li><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Column name(s) used for y axis</li>
+<li><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Height of plot in pixels</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Width of plot in pixels</li>
+<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Title of plot</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Color for plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.rename_x">
+<code class="descname">rename_x</code><span class="sig-paren">(</span><em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.rename_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.rename_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename x variable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.rename_y">
+<code class="descname">rename_y</code><span class="sig-paren">(</span><em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.rename_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.rename_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename y variable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.smooth">
+<code class="descname">smooth</code><span class="sig-paren">(</span><em>nnb=21</em>, <em>polyorder=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth data using the Savitzky-Golay filter.</p>
+<dl class="docutils">
+<dt>Information</dt>
+<dd><a class="reference external" href="https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter">https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter</a></dd>
+</dl>
+<p>This has the advantage over moving_average, that the bias of smaller
+local minima/maxima is removed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Saves the smoothed data as dm.y values. To unsmooth the data run
+<cite>unsmooth()</cite></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nnb</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Window length of filter</li>
+<li><strong>polyorder</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Polynomial order for the fit</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.unsmooth">
+<code class="descname">unsmooth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.unsmooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.unsmooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover unsmoothened y data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_table.y_value">
+<code class="descname">y_value</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_table.html#data_table.y_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_table.y_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y value for given x array or value using linear
+interpolation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>np.array</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value(s)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Interpolated y value for given x value(s)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="data-complex">
+<h3>data_complex<a class="headerlink" href="#data-complex" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="DataModule.data_complex">
+<em class="property">class </em><code class="descclassname">DataModule.</code><code class="descname">data_complex</code><span class="sig-paren">(</span><em>x=None</em>, <em>values=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Complex DataModule Class</p>
+<p>Stores data as complex voltage phasors Frequency, Re[V] + i*Im[V]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List/Numpy array of x values</li>
+<li><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>array</em><em>, </em><em>ndarray</em>) – List/Numpy array of complex y values [1+1j, 2+2j, ….]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="DataModule.data_complex.circle_fit_dc">
+<code class="descname">circle_fit_dc</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.circle_fit_dc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.circle_fit_dc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for circle_fit_reflection(phi=None)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.circle_fit_notch">
+<code class="descname">circle_fit_notch</code><span class="sig-paren">(</span><em>delay=None</em>, <em>a=None</em>, <em>alpha=None</em>, <em>phi0=None</em>, <em>subtract_bg=True</em>, <em>fr_init=None</em>, <em>Ql_init=None</em>, <em>weight_width=1</em>, <em>print_res=True</em>, <em>plot_res=True</em>, <em>comb_slopes=False</em>, <em>final_mag=False</em>, <em>maxfev=10000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.circle_fit_notch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.circle_fit_notch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Circle fit for notch configuration.</p>
+<p>This function fits the complex data to a notch-configuration circuit
+model. By default it will print and plot the fit results. To disable
+this automation, use the <cite>print_res</cite> and <cite>plot_res</cite> keywords.</p>
+<p>All the fit parameters and data is stored in a .circuit subobject of
+this datamodule.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If something goes wrong with the fit, you can for example use the
+.circuit.plot_steps() function to show the individual steps of the
+fit routine.</p>
+</div>
+<p>Measurement Setup:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|</span>            <span class="o">--</span><span class="p">[</span><span class="n">Z1</span><span class="p">]</span><span class="o">--</span> <span class="o">--</span><span class="p">[</span><span class="n">Z2</span><span class="p">]</span><span class="o">--</span>
+<span class="o">|</span>                    <span class="o">|</span>
+<span class="o">|</span>    <span class="n">OUT</span>            <span class="p">[</span><span class="n">Z3</span><span class="p">]</span>         <span class="n">IN</span>
+<span class="o">|</span>                    <span class="o">|</span>
+<span class="o">|</span>            <span class="o">-----------------</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>delay</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Set cable delay manually, otherwise determined by the fitting
+routine. Use large span to determine delay. Can be obtained by
+.get_delay()</li>
+<li><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Set a manually</li>
+<li><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Set alpha manually</li>
+<li><strong>phi0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Impedance mismatch expressed in radians</li>
+<li><strong>substract_bg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Subtract linear background</li>
+<li><strong>fr_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Initial guess for resonance frequency. In GHz.</li>
+<li><strong>Ql_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Initial guess for Lorentzian fit</li>
+<li><strong>weight_width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Multiply of FWHM frequency for which points are weighted equally.
+Outside the points are weighted less.</li>
+<li><strong>print_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Print fit results</li>
+<li><strong>plot_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot fit results</li>
+<li><strong>final_mag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Use just magnitude data for final fit of Ql and fr. This is useful,
+since sometimes the phase data is very noisy in comparison to the
+magnitude data. To minimize the error, therefore the final fit can
+be just performed on the magnitude data.</li>
+<li><strong>comb_slopes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Fit through whole phase instead of start and end separately
+(with a hole in the middle) for obtaining the delay.</li>
+<li><strong>maxfev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Maximum number of iterations for fits</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.circle_fit_reflection">
+<code class="descname">circle_fit_reflection</code><span class="sig-paren">(</span><em>delay=None</em>, <em>a=None</em>, <em>alpha=None</em>, <em>phi0=0</em>, <em>subtract_bg=True</em>, <em>fr_init=None</em>, <em>Ql_init=None</em>, <em>weight_width=1</em>, <em>print_res=True</em>, <em>plt_res=True</em>, <em>comb_slopes=False</em>, <em>final_mag=False</em>, <em>maxfev=1000000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.circle_fit_reflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.circle_fit_reflection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Circle fit for reflection configuration.</p>
+<p>This function fits the complex data to a reflection-configuration
+circuit model. By default it will print and plot the fit results.
+To disable this automation, use the <cite>print_res</cite> and <cite>plot_res</cite>
+keywords.</p>
+<p>All the fit parameters and data is stored in a .circuit subobject of
+this datamodule.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If something goes wrong with the fit, you can for example use the
+.circuit.plot_steps() function to show the individual steps of the
+fit routine.</p>
+</div>
+<p>Measurement Setup:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|</span>            <span class="o">--</span><span class="p">[</span><span class="n">Z1</span><span class="p">]</span><span class="o">---</span>
+<span class="o">|</span>    <span class="n">IN</span>              <span class="o">|</span>
+<span class="o">|</span>    <span class="n">OUT</span>            <span class="p">[</span><span class="n">Z3</span><span class="p">]</span>
+<span class="o">|</span>                    <span class="o">|</span>
+<span class="o">|</span>            <span class="o">---------</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>delay</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Set cable delay manually, otherwise determined by the fitting
+routine. Use large span to determine delay. Can be obtained by
+.get_delay()</li>
+<li><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Set a manually</li>
+<li><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Set alpha manually</li>
+<li><strong>phi0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Impedance mismatch expressed in radians</li>
+<li><strong>substract_bg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Subtract linear background</li>
+<li><strong>fr_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Initial guess for resonance frequency. In GHz.</li>
+<li><strong>Ql_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Initial guess for Lorentzian fit</li>
+<li><strong>weight_width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Multiply of FWHM frequency for which points are weighted equally.
+Outside the points are weighted less.</li>
+<li><strong>print_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Print fit results</li>
+<li><strong>plot_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot fit results</li>
+<li><strong>comb_slopes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Fit through whole phase instead of start and end separately
+(with a hole in the middle) for obtaining the delay.</li>
+<li><strong>final_mag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Use just magnitude data for final fit of Ql and fr. This is useful,
+since sometimes the phase data is very noisy in comparison to the
+magnitude data. To minimize the error, therefore the final fit can
+be just performed on the magnitude data.</li>
+<li><strong>maxfev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Maximum number of iterations for fits</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.correct_delay">
+<code class="descname">correct_delay</code><span class="sig-paren">(</span><em>delay=None</em>, <em>comb_slopes=False</em>, <em>f_range=0.25</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.correct_delay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.correct_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct the electric delay of the cables.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Give delay in nanoseconds.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>delay</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Electric delay of in ns.
+If set to None, a fit will estimate the electric delay.</li>
+<li><strong>comb_slopes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Do one fit for the whole range (use this, only if the resonance
+features in the middle seem to be symmetric)</li>
+<li><strong>f_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Percentage of the data (first and last) to use for the fit. This
+is done to get rid of resonance features in the middle</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="DataModule.data_complex.dB">
+<code class="descname">dB</code><a class="headerlink" href="#DataModule.data_complex.dB" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns a data_table module with the selected data of
+this data module converted in amplitude (dB). Data Module parameters
+are copied as well.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.do_circle_fit_dc">
+<code class="descname">do_circle_fit_dc</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.do_circle_fit_dc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.do_circle_fit_dc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias to circle_fit_reflection for downwards compatibility.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.do_circle_fit_notch">
+<code class="descname">do_circle_fit_notch</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.do_circle_fit_notch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.do_circle_fit_notch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias to circle_fit_reflection for downwards compatibility.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.get_delay">
+<code class="descname">get_delay</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.get_delay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.get_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs the delay. Alias for .circuit.delay</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.get_phase">
+<code class="descname">get_phase</code><span class="sig-paren">(</span><em>unit='deg'</em>, <em>unwrap=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.get_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.get_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns a data_table module with the selected data of
+this data module converted in amplitude (dB). Data Module parameters
+are copied as well.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> (<em>-</em>) – ‘d’ or ‘deg’ for degrees (def)
+‘r’ or ‘rad’ for radians</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>unwrap:</dt>
+<dd>True (def): phase is continuous
+False: phase is contained in 1 period</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.load_cplx_var">
+<code class="descname">load_cplx_var</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.load_cplx_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.load_cplx_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load values in form of two arrays into data_complex</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – X Array. Typically frequencies</li>
+<li><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.6)"><em>complex</em></a><em>)</em>) – Y values as a list of complex numbers [1 + 1j, 2 + 0j, …]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.load_var">
+<code class="descname">load_var</code><span class="sig-paren">(</span><em>x</em>, <em>re</em>, <em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.load_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.load_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load values in form of three arrays into <a class="reference external" href="data:complex">data:complex</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – X Array. Typically frequencies</li>
+<li><strong>re</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Real part of y values</li>
+<li><strong>im</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Imaginary part of y values</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>engine='bokeh'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data</p>
+<p>Plots raw data if no circle fit is present. If a circlefit was done,
+it plots the data and fits.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>engine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Chose the plot engine between ‘bokeh’ (default) and ‘pyplot’</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.plot_fitted_data">
+<code class="descname">plot_fitted_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.plot_fitted_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.plot_fitted_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot fitted data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.plot_rawdata">
+<code class="descname">plot_rawdata</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.plot_rawdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.plot_rawdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots plain data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_complex.plot_steps">
+<code class="descname">plot_steps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_complex.html#data_complex.plot_steps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_complex.plot_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot each step of the circlefit routine</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="DataModule.data_complex.value">
+<code class="descname">value</code><a class="headerlink" href="#DataModule.data_complex.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return complex values</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="DataModule.data_complex.x">
+<code class="descname">x</code><a class="headerlink" href="#DataModule.data_complex.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return frequencies</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="data-grid">
+<h3>data_grid<a class="headerlink" href="#data-grid" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="DataModule.data_grid">
+<em class="property">class </em><code class="descclassname">DataModule.</code><code class="descname">data_grid</code><span class="sig-paren">(</span><em>data_array</em>, <em>data_names=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for grid like data in multiple dimensions. Powered by the
+excellent library xarray for python.</p>
+<p>Initialization should be [x1_coords, x2_coords, …., xN_coords,
+N_dim_data_tensor]
+Which means that the matrix for data is the last element of the given array.</p>
+<p>Supports also custom names for each dimension which can be given as an
+array. The last element is the name for the values (not the dimesion).
+Example: [‘Probe Frequency (GHz)’, ‘Readout Frequency (GHz)’, ‘Mag (dB)’]</p>
+<dl class="method">
+<dt id="DataModule.data_grid.extract_min_lorentzianfit_y">
+<code class="descname">extract_min_lorentzianfit_y</code><span class="sig-paren">(</span><em>p0=None</em>, <em>argument=True</em>, <em>plot=False</em>, <em>adapt_p0=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.extract_min_lorentzianfit_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.extract_min_lorentzianfit_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use Lorentzian with initial parameters p0 to fit the maximum z-value
+while sweeping through y.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Return depends on argument.
+- If set to True, it will return a new datamodule with (y, x)
+- If set to False, it will return a new datamodule with (y, max(z))</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>p0</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Initial guess for lorentzianfit pars [‘center’, ‘width’, ‘offset’,
+‘amplitude’]</li>
+<li><strong>argument</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Return x or z values</li>
+<li><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot each iteration</li>
+<li><strong>adapt_p0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Use p0 of last iteration</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <cite>data_table</cite> DataModule. Values depend on argument keyword (see
+above)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.extract_min_modefit_y">
+<code class="descname">extract_min_modefit_y</code><span class="sig-paren">(</span><em>p0=None</em>, <em>argument=True</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.extract_min_modefit_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.extract_min_modefit_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use mode fit with initial parameters p0 to fit the minimum z-value
+while sweeping through y.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Return depends on argument.
+- If set to True, it will return a new datamodule with (y, x)
+- If set to False, it will return a new datamodule with (y, min(z))</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>p0</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Initial guess for modefit pars [‘offset’, ‘Qc’, ‘df’, ‘f0’, ‘Qi’]</li>
+<li><strong>argument</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Return x or z values</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <cite>data_table</cite> DataModule. Values depend on argument keyword (see
+above)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.extract_min_x">
+<code class="descname">extract_min_x</code><span class="sig-paren">(</span><em>argument=True</em>, <em>nnB=21</em>, <em>polyorder=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.extract_min_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.extract_min_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract minimum z-values sweeping through x.</p>
+<p>Smooth data and extract minimum z values sweeping through x.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Return depends on argument.
+- If set to True, it will return a new datamodule with (y, x)
+- If set to False, it will return a new datamodule with (y, min(z))</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>argument</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Return corresponding x value (True) or corresponding minimum value</li>
+<li><strong>nnB</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – <dl class="docutils">
+<dt>Window length for smoothing. Set to 1 to disable</dt>
+<dd>smoothing.</dd>
+</dl>
+</li>
+<li><strong>polyorder</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Polynomial order for smoothing</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <cite>data_table</cite> DataModule. Values depend on argument keyword (see
+above)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.extract_min_y">
+<code class="descname">extract_min_y</code><span class="sig-paren">(</span><em>argument=True</em>, <em>nnB=21</em>, <em>polyorder=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.extract_min_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.extract_min_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract minimum z-values sweeping through y.</p>
+<p>Smooth data and extract minimum z values sweeping through y.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Return depends on argument.
+- If set to True, it will return a new datamodule with (y, x)
+- If set to False, it will return a new datamodule with (y, min(z))</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>argument</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Return corresponding x value (True) or corresponding minimum value</li>
+<li><strong>nnB</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – <dl class="docutils">
+<dt>Window length for smoothing. Set to 1 to disable</dt>
+<dd>smoothing.</dd>
+</dl>
+</li>
+<li><strong>polyorder</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Polynomial order for smoothing</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <cite>data_table</cite> DataModule. Values depend on argument keyword (see
+above)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.extract_x">
+<code class="descname">extract_x</code><span class="sig-paren">(</span><em>x0</em>, <em>plot=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.extract_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.extract_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract z values along  axis for specified x value x0.</p>
+<p>This function will return the data at the line corresponding at
+the specified value of the x-axis.
+If the value is not exact, it will take the closest one above the
+value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – y value for which the data should be extracted</li>
+<li><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot the extracted datamodule directly</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">data_table module</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.extract_y">
+<code class="descname">extract_y</code><span class="sig-paren">(</span><em>y0</em>, <em>plot=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.extract_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.extract_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract z values along  axis for specified y value y0.</p>
+<p>This function will return the data at the line corresponding at
+the specified value of the x-axis.
+If the value is not exact, it will take the closest one above the
+value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – y value for which the data should be extracted</li>
+<li><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – Plot the extracted datamodule directly</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">data_table module</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.imshow">
+<code class="descname">imshow</code><span class="sig-paren">(</span><em>colormap='magma'</em>, <em>levels=256</em>, <em>zlabel_pos='right'</em>, <em>labelpad=0</em>, <em>cbar_y=0.5</em>, <em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.imshow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.imshow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color plot using matplotlib</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Plots just the .select() data.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>colormap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Choose colormap from ‘Magma’ (Def), ‘Inferno’, ‘Plasma’, ‘Viridis’</li>
+<li><strong>levels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Color levels. Default is 256</li>
+<li><strong>data_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Choose if data is linear ‘Lin’, logarithmic ‘Log’ or ‘Amplitude’</li>
+<li><strong>xlabel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Label for x axis</li>
+<li><strong>ylabel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Label for y axis</li>
+<li><strong>zlabel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Label for colorbar</li>
+<li><strong>zlabel_pos</strong> (<em>&quot;top&quot;</em><em>, </em><em>&quot;right&quot;</em><em>, </em><em>&quot;right_invert&quot;</em>) – Position and orientation of zlabel next to colorbar. If location is
+wrong, play with labelpad and cbar_y</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.interp">
+<code class="descname">interp</code><span class="sig-paren">(</span><em>xnew</em>, <em>ynew</em>, <em>kind='cubic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.interp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.interp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolates data to new x, y values <cite>xnew</cite> and <cite>ynew</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xnew</strong> (<em>np.array</em>) – New x array</li>
+<li><strong>ynew</strong> (<em>np.array</em>) – New y array</li>
+<li><strong>kind</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Chose interpolation kind out of [‘linear’, ‘cubic’, ‘quintic’]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A new data_surface DataModule</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataModule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.pcolormesh">
+<code class="descname">pcolormesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.pcolormesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.pcolormesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple color plot without options. Quick and light</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>name_x=None</em>, <em>name_y=None</em>, <em>cmap='magma'</em>, <em>height=400</em>, <em>width=800</em>, <em>z_min=None</em>, <em>z_max=None</em>, <em>mode='Image'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot table with Holoviews</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name_x</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Column name used for x axis</li>
+<li><strong>name_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Column name used for y axis</li>
+<li><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Name of colormap</li>
+<li><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Height of plot in pixels</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Width of plot in pixels</li>
+<li><strong>z_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a><em>(</em><em>Optional</em><em>)</em>) – Minimum value for z values. If you set this, the scale will not
+automatically updated to full contrast.</li>
+<li><strong>z_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.6)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a><em> (</em><em>Optional</em><em>)</em>) – Maximum value for z values</li>
+<li><strong>mode</strong> (<em>'QuadMesh'</em><em>, </em><em>'Image'</em>) – Choose mode for holoviews plotting</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>xrng=None</em>, <em>yrng=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limit data between specified ranges.</p>
+<p>This function will select the data in the specified range of the
+x-axis and y-axis. If nothing is specified all the data will be
+selected.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To undo a selection just run <cite>select()</cite> without an argument.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xrng</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Start and stop x value [x_start, x_stop]</li>
+<li><strong>yrng</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Start and stop y value [y_start, y_stop]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.smoothx">
+<code class="descname">smoothx</code><span class="sig-paren">(</span><em>nnb=21</em>, <em>polyorder=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.smoothx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.smoothx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth data along x axis using the Savitzky-Golay filter</p>
+<p>Currently just for xyz data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nnb</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Window length of filter. Must be an odd integer</li>
+<li><strong>polyorder</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Polynomial order for the fit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Filtered z matrix.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataModule.data_grid.smoothy">
+<code class="descname">smoothy</code><span class="sig-paren">(</span><em>nnb=11</em>, <em>polyorder=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/data_grid.html#data_grid.smoothy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.data_grid.smoothy" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Smooth data along y axis using the Savitzky-Golay filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nnb</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Window length of filter. Must be an odd integer</li>
+<li><strong>polyorder</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Polynomial order for the fit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Filtered z matrix.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="DataModule.data_grid.x">
+<code class="descname">x</code><a class="headerlink" href="#DataModule.data_grid.x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Default for two dim grid</em> – Return first dimension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="DataModule.data_grid.y">
+<code class="descname">y</code><a class="headerlink" href="#DataModule.data_grid.y" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Default for two dim grid</em> – Return second dimension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="DataModule.data_grid.z">
+<code class="descname">z</code><a class="headerlink" href="#DataModule.data_grid.z" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Default for two dim grid</em> – Return values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-DataModule.fit_functions">
+<span id="fit-functions"></span><h2>fit_functions<a class="headerlink" href="#module-DataModule.fit_functions" title="Permalink to this headline">¶</a></h2>
+<p>Standard fit functions used in the data module.</p>
+<dl class="function">
+<dt id="DataModule.fit_functions.T2_beating_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">T2_beating_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#T2_beating_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.T2_beating_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>T2 beating function</p>
+<div class="math notranslate nohighlight">
+\[y(x) = p[0] \sin(2\pi/p[1] x + p[2]) \sin(2\pi/p[3] x + p[4])         \exp(-x/p[5])+p[6]\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0] = amplitude1</div>
+<div class="line">p[1] = period1</div>
+<div class="line">p[2] = phase1</div>
+<div class="line">p[3] = period2</div>
+<div class="line">p[4] = phase2</div>
+<div class="line">p[5] = tau</div>
+<div class="line">p[6] = offset</div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values. List size depends of given number of parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.T2_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">T2_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#T2_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.T2_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>T2 function</p>
+<div class="math notranslate nohighlight">
+\[y(x) = p[0] \sin(2\pi/p[1] x+p[2]) \exp(-x/p[3])+p[4]\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0] = amplitude</div>
+<div class="line">p[1] = period</div>
+<div class="line">p[2] = phase</div>
+<div class="line">p[3] = tau</div>
+<div class="line">p[4] = offset</div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values. List size depends of given number of parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.bose">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">bose</code><span class="sig-paren">(</span><em>E</em>, <em>A0</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#bose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.bose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bose Einstein distribution for energies in units of GHz</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.cos_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">cos_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#cos_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.cos_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cosine function</p>
+<div class="math notranslate nohighlight">
+\[y(x) = p[0] \cos(2\pi/p[1] x+p[2])+p[3]\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0] = amplitude</div>
+<div class="line">p[1] = period</div>
+<div class="line">p[2] = phase</div>
+<div class="line">p[3] = offset</div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values. List size depends of given number of parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.exp_boltzmann">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">exp_boltzmann</code><span class="sig-paren">(</span><em>E</em>, <em>A</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#exp_boltzmann"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.exp_boltzmann" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boltzmann factor, energies in units of GHz</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.exp_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">exp_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#exp_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.exp_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential function</p>
+<div class="math notranslate nohighlight">
+\[y = p[0] + p[1]\exp(-(x-p[2])/p[3])\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0]: = vertical offset</div>
+<div class="line">p[1] = Amplitude</div>
+<div class="line">p[2] = horizontal offset</div>
+<div class="line">p[3] = tau (default exp is negative)</div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.exp_fit_rev">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">exp_fit_rev</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#exp_fit_rev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.exp_fit_rev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declining exponential function</p>
+<div class="math notranslate nohighlight">
+\[y= p[0] + p[1](1-\exp(-(x-p[2])/p[3]))\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0] = vertical offset</div>
+<div class="line">p[1] = Amplitude</div>
+<div class="line">p[2] = horizontal offset</div>
+<div class="line">p[3] = tau (default exp is negative)</div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.gaussian_2d">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">gaussian_2d</code><span class="sig-paren">(</span><em>xy</em>, <em>center_x</em>, <em>center_y</em>, <em>height</em>, <em>width</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#gaussian_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.gaussian_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>2d Gaussian Function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xy</strong> (<em>[</em><em>array</em><em>, </em><em>array</em><em>]</em>) – X and Y array</li>
+<li><strong>center_x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Center of gaussian in x direction</li>
+<li><strong>center_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Center of gaussian in y dircetion</li>
+<li><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Height of gaussian</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Width of gaussian</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.gaussian_2d_mult">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">gaussian_2d_mult</code><span class="sig-paren">(</span><em>xy</em>, <em>*pars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#gaussian_2d_mult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.gaussian_2d_mult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sum of multiple 2d gaussians</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.lorentzian_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">lorentzian_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#lorentzian_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.lorentzian_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lorentzian function</p>
+<div class="math notranslate nohighlight">
+\[y(x) = p[3]/\pi \cdot p[1]/2/((x-p[0])^2 + (p[1]/2)^2 ) + p[2]\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0] = center</div>
+<div class="line">p[1] = width</div>
+<div class="line">p[2] = baseline</div>
+<div class="line">p[3] = amplitude</div>
+<div class="line">p[4] = scale</div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values. List size depends of given number of parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.mode_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">mode_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#mode_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.mode_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit for obtaining Quality factors out of resonances.</p>
+<div class="math notranslate nohighlight">
+\[y = p[0] + 20\log(|1 - (1/p[1] - 2i p[2]/p[3])/(1/Ql + 2i(x-p[3]-p[2]            )/(p[3]+p[2]))\]</div>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0]: = offset</div>
+<div class="line">p[1] = Qc</div>
+<div class="line">p[2] = dF</div>
+<div class="line">p[3] = resonance frequency</div>
+<div class="line">p[4] = Qint</div>
+</div>
+</dd>
+</dl>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">Sources missing</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.fit_functions.poly_fit">
+<code class="descclassname">DataModule.fit_functions.</code><code class="descname">poly_fit</code><span class="sig-paren">(</span><em>x</em>, <em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/fit_functions.html#poly_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.fit_functions.poly_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polynomial function.</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[y = p[0] + p[1]x + p[2]x^2 + ...\]</div>
+</div></blockquote>
+<dl class="docutils">
+<dt>Function parameters:</dt>
+<dd><div class="first last line-block">
+<div class="line">p[0] = offset</div>
+<div class="line">p[1] = coefficient for x</div>
+<div class="line">p[2] = coefficient for x^2</div>
+<div class="line">…</div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Function infers degree of polynom from number if guessed initial
+parameters</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poly_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">])</span>
+<span class="go">p[0]+p[1]*x+p[2]*x**2+p[3]*x**3</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – x value</li>
+<li><strong>*p</strong> (<em>args</em>) – Initial parameter guesses</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function values. List size depends of given number of parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)">float</a>, np.array, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="plotting">
+<h2>plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h2>
+<p>Useful plot functions and default settings for the DataModule plots</p>
+<span class="target" id="module-DataModule.plot_style"></span><p>This file contains a normalized plot style for our group.</p>
+<dl class="function">
+<dt id="DataModule.plot_style.check_color">
+<code class="descclassname">DataModule.plot_style.</code><code class="descname">check_color</code><span class="sig-paren">(</span><em>style</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/plot_style.html#check_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.plot_style.check_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help function, to check if color is part of the default colors</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DataModule.plot_style.set">
+<code class="descclassname">DataModule.plot_style.</code><code class="descname">set</code><span class="sig-paren">(</span><em>font='Serif', fontsize=11, figsize=(8.6, 8.6), linewidth=1.5, color_scheme=['#0072bd', '#d95319', '#edb120', '#7e2f8e', '#77ac30', '#4dbeee', '#a2142f', '#000000'], color_labels=['b', 'mand', 'y', 'p', 'g', 'lb', 'r', 'k']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DataModule/plot_style.html#set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DataModule.plot_style.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set global plot style.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>font</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Default font. Chose from [‘Sans-Serif, ‘Serif’, ‘Times New Roman’, …]</li>
+<li><strong>fontsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Fontsize. Defaults is 11</li>
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Figure size in cm. [(x_dim (cm), y_dim (cm))]. For example (8.6, 8.6)]
+for the default PRL single column figure.</li>
+<li><strong>linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Default linewidth</li>
+<li><strong>color_scheme</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Colors for plot. Default is:
+[[‘#377EB8’, ‘#E41A1C’, ‘#4DAF4A’, ‘#984EA3’, ‘#FF7F00’, ‘#FFFF33’,
+‘#A65628’, ‘#F781BF’]</li>
+<li><strong>color_labels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – Abbreviations array for colors. Default is:
+[‘b’, ‘r’, ‘g’, ‘p’, ‘mand’, ‘y’, ‘br’, ‘pink’]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Python Repository" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Christian Schneider.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

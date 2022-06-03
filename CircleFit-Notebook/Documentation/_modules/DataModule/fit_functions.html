@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DataModule.fit_functions &mdash; DataModule 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DataModule
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodule.html">DataModule</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DataModule</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>DataModule.fit_functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DataModule.fit_functions</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Standard fit functions used in the data module.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">kb</span> <span class="o">=</span> <span class="mf">1.3806488e-23</span> <span class="c1">#m2 Kg s-2 K-1</span>
+<span class="n">hbar</span> <span class="o">=</span> <span class="mf">1.054571726e-34</span> <span class="c1">#Js</span>
+
+
+<span class="n">bose_par_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;Temperature&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="bose"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.bose">[docs]</a><span class="k">def</span> <span class="nf">bose</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">A0</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Bose Einstein distribution for energies in units of GHz&quot;&quot;&quot;</span>       
+    <span class="k">return</span> <span class="n">A0</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">E</span><span class="o">*</span><span class="n">hbar</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mf">1e9</span><span class="o">/</span><span class="p">(</span><span class="n">kb</span><span class="o">*</span><span class="n">T</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="n">boltzmann_par_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;Temperature&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="exp_boltzmann"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.exp_boltzmann">[docs]</a><span class="k">def</span> <span class="nf">exp_boltzmann</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Boltzmann factor, energies in units of GHz&quot;&quot;&quot;</span> 
+    <span class="k">return</span> <span class="n">A</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">E</span><span class="o">*</span><span class="n">hbar</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mf">1e9</span><span class="o">/</span><span class="p">(</span><span class="n">kb</span><span class="o">*</span><span class="n">T</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="gaussian_2d"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.gaussian_2d">[docs]</a><span class="k">def</span> <span class="nf">gaussian_2d</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">center_x</span><span class="p">,</span> <span class="n">center_y</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;2d Gaussian Function</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    xy : [array, array]</span>
+<span class="sd">        X and Y array</span>
+<span class="sd">    center_x : float</span>
+<span class="sd">        Center of gaussian in x direction</span>
+<span class="sd">    center_y : float</span>
+<span class="sd">        Center of gaussian in y dircetion</span>
+<span class="sd">    height : float</span>
+<span class="sd">        Height of gaussian</span>
+<span class="sd">    width : float</span>
+<span class="sd">        Width of gaussian</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">xy</span>
+    <span class="k">return</span> <span class="n">height</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">center_x</span><span class="p">)</span><span class="o">/</span><span class="n">width</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span>
+                         <span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">center_y</span><span class="p">)</span><span class="o">/</span><span class="n">width</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gaussian_2d_mult"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.gaussian_2d_mult">[docs]</a><span class="k">def</span> <span class="nf">gaussian_2d_mult</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="o">*</span><span class="n">pars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sum of multiple 2d gaussians&quot;&quot;&quot;</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pars</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">+=</span> <span class="n">gaussian_2d</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">pars</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">pars</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span>
+                           <span class="n">pars</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">pars</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span></div>
+
+
+<span class="n">mode_fit_pars_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="s1">&#39;Qc&#39;</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;f0&#39;</span><span class="p">,</span> <span class="s1">&#39;Qi&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="mode_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.mode_fit">[docs]</a><span class="k">def</span> <span class="nf">mode_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fit for obtaining Quality factors out of resonances.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y = p[0] + 20\log(|1 - (1/p[1] - 2i p[2]/p[3])/(1/Ql + 2i(x-p[3]-p[2]\</span>
+<span class="sd">            )/(p[3]+p[2]))</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0]: = offset</span>
+<span class="sd">        | p[1] = Qc</span>
+<span class="sd">        | p[2] = dF</span>
+<span class="sd">        | p[3] = resonance frequency</span>
+<span class="sd">        | p[4] = Qint</span>
+
+<span class="sd">    Todo</span>
+<span class="sd">    -------</span>
+<span class="sd">        Sources missing</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s0</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Qext</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dF</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">Fres</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">Qint</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="n">Qtot</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">Qext</span> <span class="o">+</span> <span class="mf">1.</span><span class="o">/</span><span class="n">Qint</span><span class="p">)</span>
+    <span class="n">Fres2</span> <span class="o">=</span> <span class="n">Fres</span><span class="o">+</span><span class="n">dF</span>
+
+    <span class="k">return</span> <span class="n">s0</span> <span class="o">+</span> <span class="mf">20.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">Qext</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">dF</span><span class="o">/</span><span class="n">Fres</span><span class="p">)</span> <span class="o">/</span>
+                                         <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">Qtot</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">F</span><span class="o">-</span><span class="n">Fres2</span><span class="p">)</span><span class="o">/</span><span class="n">Fres2</span><span class="p">)))</span></div>
+
+
+<span class="n">exp_fit_pars_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;delay&#39;</span><span class="p">,</span> <span class="s1">&#39;tau&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="exp_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.exp_fit">[docs]</a><span class="k">def</span> <span class="nf">exp_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exponential function</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y = p[0] + p[1]\exp(-(x-p[2])/p[3])</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0]: = vertical offset</span>
+<span class="sd">        | p[1] = Amplitude</span>
+<span class="sd">        | p[2] = horizontal offset</span>
+<span class="sd">        | p[3] = tau (default exp is negative)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="exp_fit_rev"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.exp_fit_rev">[docs]</a><span class="k">def</span> <span class="nf">exp_fit_rev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Declining exponential function</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y= p[0] + p[1](1-\exp(-(x-p[2])/p[3]))</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0] = vertical offset</span>
+<span class="sd">        | p[1] = Amplitude</span>
+<span class="sd">        | p[2] = horizontal offset</span>
+<span class="sd">        | p[3] = tau (default exp is negative)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="poly_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.poly_fit">[docs]</a><span class="k">def</span> <span class="nf">poly_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Polynomial function.</span>
+
+<span class="sd">     .. math::</span>
+<span class="sd">        y = p[0] + p[1]x + p[2]x^2 + ...</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0] = offset</span>
+<span class="sd">        | p[1] = coefficient for x</span>
+<span class="sd">        | p[2] = coefficient for x^2</span>
+<span class="sd">        | ...</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    -----</span>
+<span class="sd">        Function infers degree of polynom from number if guessed initial</span>
+<span class="sd">        parameters</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    --------</span>
+<span class="sd">        &gt;&gt;&gt; poly_fit(x,[1.,1.,1.,1.])</span>
+<span class="sd">        p[0]+p[1]*x+p[2]*x**2+p[3]*x**3</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values. List size depends of given number of parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pol</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
+        <span class="n">pol</span> <span class="o">+=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pol</span></div>
+
+
+<span class="n">lorentzian_fit_pars_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="s1">&#39;amplitude&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="lorentzian_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.lorentzian_fit">[docs]</a><span class="k">def</span> <span class="nf">lorentzian_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Lorentzian function</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y(x) = p[3]/\pi \cdot p[1]/2/((x-p[0])^2 + (p[1]/2)^2 ) + p[2]</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0] = center</span>
+<span class="sd">        | p[1] = width</span>
+<span class="sd">        | p[2] = baseline</span>
+<span class="sd">        | p[3] = amplitude</span>
+<span class="sd">        | p[4] = scale</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values. List size depends of given number of parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span>   
+    
+    <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="o">/</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+
+
+<span class="n">cos_fit_pars_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;period&#39;</span><span class="p">,</span> <span class="s1">&#39;phase&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="cos_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.cos_fit">[docs]</a><span class="k">def</span> <span class="nf">cos_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Cosine function</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y(x) = p[0] \cos(2\pi/p[1] x+p[2])+p[3]</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0] = amplitude</span>
+<span class="sd">        | p[1] = period</span>
+<span class="sd">        | p[2] = phase</span>
+<span class="sd">        | p[3] = offset</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values. List size depends of given number of parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span></div>
+
+
+<span class="n">T2_fit_pars_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;period&#39;</span><span class="p">,</span> <span class="s1">&#39;phase&#39;</span><span class="p">,</span> <span class="s1">&#39;tau&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="T2_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.T2_fit">[docs]</a><span class="k">def</span> <span class="nf">T2_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;T2 function</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y(x) = p[0] \sin(2\pi/p[1] x+p[2]) \exp(-x/p[3])+p[4]</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0] = amplitude</span>
+<span class="sd">        | p[1] = period</span>
+<span class="sd">        | p[2] = phase</span>
+<span class="sd">        | p[3] = tau</span>
+<span class="sd">        | p[4] = offset</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values. List size depends of given number of parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span></div>
+
+
+<span class="n">T2_beating_fit_pars_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;period1&#39;</span><span class="p">,</span> <span class="s1">&#39;phase1&#39;</span><span class="p">,</span> <span class="s1">&#39;period2&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;phase2&#39;</span><span class="p">,</span> <span class="s1">&#39;tau&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="T2_beating_fit"><a class="viewcode-back" href="../../datamodule.html#DataModule.fit_functions.T2_beating_fit">[docs]</a><span class="k">def</span> <span class="nf">T2_beating_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="o">*</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;T2 beating function</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        y(x) = p[0] \sin(2\pi/p[1] x + p[2]) \sin(2\pi/p[3] x + p[4]) \</span>
+<span class="sd">        \exp(-x/p[5])+p[6]</span>
+
+<span class="sd">    Function parameters:</span>
+<span class="sd">        | p[0] = amplitude1</span>
+<span class="sd">        | p[1] = period1</span>
+<span class="sd">        | p[2] = phase1</span>
+<span class="sd">        | p[3] = period2</span>
+<span class="sd">        | p[4] = phase2</span>
+<span class="sd">        | p[5] = tau</span>
+<span class="sd">        | p[6] = offset</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        x value</span>
+<span class="sd">    *p : args</span>
+<span class="sd">        Initial parameter guesses</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    float, np.array, list</span>
+<span class="sd">        Function values. List size depends of given number of parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">*</span>\
+        <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Christian Schneider.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

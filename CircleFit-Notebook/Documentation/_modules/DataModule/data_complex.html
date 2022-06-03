@@ -1,0 +1,662 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DataModule.data_complex &mdash; DataModule 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DataModule
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodule.html">DataModule</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DataModule</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>DataModule.data_complex</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DataModule.data_complex</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Class for complex data (Frequency, Re + i*Im)&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.data_table</span> <span class="k">import</span> <span class="n">data_table</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">CircleFit.plotting</span> <span class="k">import</span> <span class="n">plot_rawdata</span>
+<span class="kn">import</span> <span class="nn">CircleFit.plotting</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="kn">from</span> <span class="nn">CircleFit.circuit</span> <span class="k">import</span> <span class="n">Notch</span><span class="p">,</span> <span class="n">Reflection</span>
+<span class="kn">from</span> <span class="nn">CircleFit.fit_toolbox</span> <span class="k">import</span> <span class="n">get_delay</span>
+
+
+<div class="viewcode-block" id="data_complex"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex">[docs]</a><span class="k">class</span> <span class="nc">data_complex</span><span class="p">(</span><span class="n">data_table</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Complex DataModule Class</span>
+
+<span class="sd">    Stores data as complex voltage phasors Frequency, Re[V] + i*Im[V]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : list</span>
+<span class="sd">        List/Numpy array of x values</span>
+<span class="sd">    values : list, array, ndarray</span>
+<span class="sd">        List/Numpy array of complex y values [1+1j, 2+2j, ....]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">data_complex</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]],</span>
+                                               <span class="p">[</span><span class="s1">&#39;Freq (GHz)&#39;</span><span class="p">,</span> <span class="s1">&#39;Real (V)&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;Imag (V)&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">re</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">data_complex</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">im</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s1">&#39;Freq (GHz)&#39;</span><span class="p">,</span> <span class="s1">&#39;Real (V)&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;Imag (V)&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delayOffset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitresults</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitresults_full_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show pandas dataframe as default representation&quot;&quot;&quot;</span>
+        <span class="n">print_str</span> <span class="o">=</span> <span class="s1">&#39;&lt;h3&gt;data_complex&lt;/h3&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">print_str</span> <span class="o">+=</span> <span class="s1">&#39;delay = </span><span class="si">{:.2e}</span><span class="s1"> s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitresults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">print_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&lt;h4&gt;Fitresults&lt;/h4&gt;&#39;</span>
+            <span class="n">print_str</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitresults</span><span class="o">.</span><span class="n">to_html</span><span class="p">()</span>
+            <span class="n">print_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&lt;h4&gt;Head of data &lt;/h4&gt;&#39;</span>
+
+        <span class="k">return</span> <span class="n">print_str</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">to_html</span><span class="p">()</span>
+
+<div class="viewcode-block" id="data_complex.load_var"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.load_var">[docs]</a>    <span class="k">def</span> <span class="nf">load_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">im</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load values in form of three arrays into data:complex</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x : list</span>
+<span class="sd">            X Array. Typically frequencies</span>
+<span class="sd">        re : list</span>
+<span class="sd">            Real part of y values</span>
+<span class="sd">        im : list</span>
+<span class="sd">            Imaginary part of y values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">import_data</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">im</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;Freq (GHz)&#39;</span><span class="p">,</span> <span class="s1">&#39;Real (V)&#39;</span><span class="p">,</span> <span class="s1">&#39;Imag (V)&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="data_complex.load_cplx_var"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.load_cplx_var">[docs]</a>    <span class="k">def</span> <span class="nf">load_cplx_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load values in form of two arrays into data_complex</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        x : list</span>
+<span class="sd">            X Array. Typically frequencies</span>
+<span class="sd">        y : list(complex)</span>
+<span class="sd">            Y values as a list of complex numbers [1 + 1j, 2 + 0j, ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">re</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">import_data</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">im</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;Freq (GHz)&#39;</span><span class="p">,</span> <span class="s1">&#39;Real (V)&#39;</span><span class="p">,</span> <span class="s1">&#39;Imag (V)&#39;</span><span class="p">])</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return frequencies&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Freq (GHz)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">])</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
+            <span class="c1"># Replace select (idx_min to idx_max)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">]):</span>
+            <span class="c1"># Replace whole dataframe</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Reindex</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="c1"># Reset min idx and max idx</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set real and imag values&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Real (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Imag (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return complex values&quot;&quot;&quot;</span>
+        <span class="n">re</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Real (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Imag (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">re</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">im</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">re</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">im</span><span class="p">)</span>
+
+    <span class="nd">@value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set real and imag values&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Real (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Imag (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">re</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Real (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Imag (V)&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_min</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_max</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">re</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">im</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dB</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function returns a data_table module with the selected data of</span>
+<span class="sd">        this data module converted in amplitude (dB). Data Module parameters</span>
+<span class="sd">        are copied as well.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">))],</span>
+                         <span class="p">[</span><span class="s1">&#39;Frequency (GHz)&#39;</span><span class="p">,</span> <span class="s1">&#39;Mag (dB)&#39;</span><span class="p">])</span>
+        <span class="c1"># TODO Make a function for copying datamodules</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start_time</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop_time</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">date_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_format</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">save_date_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_date_format</span>
+        <span class="k">return</span> <span class="n">tmp</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_phase</span><span class="p">()</span>
+
+<div class="viewcode-block" id="data_complex.get_phase"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.get_phase">[docs]</a>    <span class="k">def</span> <span class="nf">get_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="n">unwrap</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function returns a data_table module with the selected data of</span>
+<span class="sd">        this data module converted in amplitude (dB). Data Module parameters</span>
+<span class="sd">        are copied as well.</span>
+
+<span class="sd">        arguments:</span>
+<span class="sd">         - unit:</span>
+<span class="sd">             &#39;d&#39; or &#39;deg&#39; for degrees (def)</span>
+<span class="sd">             &#39;r&#39; or &#39;rad&#39; for radians</span>
+<span class="sd">        - unwrap:</span>
+<span class="sd">            True (def): phase is continuous</span>
+<span class="sd">            False: phase is contained in 1 period</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">unit</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unwrap</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">unwrap</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Wrong unwrap setting inserted&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span> <span class="ow">or</span> <span class="n">u</span> <span class="o">==</span> <span class="s1">&#39;deg&#39;</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">*=</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="k">elif</span> <span class="n">u</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span> <span class="ow">or</span> <span class="n">u</span> <span class="o">==</span> <span class="s1">&#39;rad&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Wrong unit inserted&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">data_table</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tmp</span><span class="p">],</span>
+                         <span class="p">[</span><span class="s1">&#39;Frequency (GHz)&#39;</span><span class="p">,</span> <span class="s1">&#39;Phase (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit</span><span class="p">)])</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">time_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_stop</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_start_time</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">temp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_stop_time</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">date_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_format</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">save_date_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_date_format</span>
+        <span class="k">return</span> <span class="n">tmp</span></div>
+
+<div class="viewcode-block" id="data_complex.correct_delay"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.correct_delay">[docs]</a>    <span class="k">def</span> <span class="nf">correct_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comb_slopes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">f_range</span><span class="o">=.</span><span class="mi">25</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Correct the electric delay of the cables.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">        Give delay in nanoseconds.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        delay : float</span>
+<span class="sd">            Electric delay of in ns.</span>
+<span class="sd">            If set to None, a fit will estimate the electric delay.</span>
+<span class="sd">        comb_slopes : bool</span>
+<span class="sd">            Do one fit for the whole range (use this, only if the resonance</span>
+<span class="sd">            features in the middle seem to be symmetric)</span>
+<span class="sd">        f_range : float</span>
+<span class="sd">            Percentage of the data (first and last) to use for the fit. This</span>
+<span class="sd">            is done to get rid of resonance features in the middle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if already set. If yes, unset the previous delay</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delayOffset</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Try to estimate delay with linear fit of phase if no delay is given</span>
+        <span class="k">if</span> <span class="n">delay</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">delay</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">get_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comb_slopes</span><span class="o">=</span><span class="n">comb_slopes</span><span class="p">,</span>
+                                      <span class="n">f_range</span><span class="o">=</span><span class="n">f_range</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delayOffset</span> <span class="o">=</span> <span class="n">offset</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">get_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comb_slopes</span><span class="o">=</span><span class="n">comb_slopes</span><span class="p">,</span>
+                                  <span class="n">f_range</span><span class="o">=</span><span class="n">f_range</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delayOffset</span> <span class="o">=</span> <span class="n">offset</span>
+
+        <span class="c1"># Save set delay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="n">delay</span></div>
+
+<div class="viewcode-block" id="data_complex.plot"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;bokeh&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot data</span>
+
+<span class="sd">        Plots raw data if no circle fit is present. If a circlefit was done,</span>
+<span class="sd">        it plots the data and fits.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        engine : str</span>
+<span class="sd">            Chose the plot engine between &#39;bokeh&#39; (default) and &#39;pyplot&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO Rewrite without try and except</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_fitted_data</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_rawdata</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_complex.plot_rawdata"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.plot_rawdata">[docs]</a>    <span class="k">def</span> <span class="nf">plot_rawdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots plain data&quot;&quot;&quot;</span>
+        <span class="n">plot_rawdata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_complex.circle_fit_notch"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.circle_fit_notch">[docs]</a>    <span class="k">def</span> <span class="nf">circle_fit_notch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phi0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">subtract_bg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fr_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Ql_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">weight_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">print_res</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_res</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">comb_slopes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">final_mag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Circle fit for notch configuration.</span>
+
+<span class="sd">        This function fits the complex data to a notch-configuration circuit</span>
+<span class="sd">        model. By default it will print and plot the fit results. To disable</span>
+<span class="sd">        this automation, use the `print_res` and `plot_res` keywords.</span>
+
+<span class="sd">        All the fit parameters and data is stored in a .circuit subobject of</span>
+<span class="sd">        this datamodule.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            If something goes wrong with the fit, you can for example use the</span>
+<span class="sd">            .circuit.plot_steps() function to show the individual steps of the</span>
+<span class="sd">            fit routine.</span>
+
+<span class="sd">        Measurement Setup::</span>
+
+<span class="sd">        |            --[Z1]-- --[Z2]--</span>
+<span class="sd">        |                    |</span>
+<span class="sd">        |    OUT            [Z3]         IN</span>
+<span class="sd">        |                    |</span>
+<span class="sd">        |            -----------------</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        delay : float</span>
+<span class="sd">            Set cable delay manually, otherwise determined by the fitting</span>
+<span class="sd">            routine. Use large span to determine delay. Can be obtained by</span>
+<span class="sd">            .get_delay()</span>
+<span class="sd">        a : float</span>
+<span class="sd">            Set a manually</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            Set alpha manually</span>
+<span class="sd">        phi0 : float</span>
+<span class="sd">            Impedance mismatch expressed in radians</span>
+<span class="sd">        substract_bg : bool</span>
+<span class="sd">            Subtract linear background</span>
+<span class="sd">        fr_init : float</span>
+<span class="sd">            Initial guess for resonance frequency. In GHz.</span>
+<span class="sd">        Ql_init : float</span>
+<span class="sd">            Initial guess for Lorentzian fit</span>
+<span class="sd">        weight_width : float</span>
+<span class="sd">            Multiply of FWHM frequency for which points are weighted equally.</span>
+<span class="sd">            Outside the points are weighted less.</span>
+<span class="sd">        print_res : bool</span>
+<span class="sd">            Print fit results</span>
+<span class="sd">        plot_res : bool</span>
+<span class="sd">            Plot fit results</span>
+<span class="sd">        final_mag : bool</span>
+<span class="sd">            Use just magnitude data for final fit of Ql and fr. This is useful,</span>
+<span class="sd">            since sometimes the phase data is very noisy in comparison to the</span>
+<span class="sd">            magnitude data. To minimize the error, therefore the final fit can</span>
+<span class="sd">            be just performed on the magnitude data.</span>
+<span class="sd">        comb_slopes : bool</span>
+<span class="sd">            Fit through whole phase instead of start and end separately</span>
+<span class="sd">            (with a hole in the middle) for obtaining the delay.</span>
+<span class="sd">        maxfev : int</span>
+<span class="sd">            Maximum number of iterations for fits</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;delay&#39;</span><span class="p">:</span> <span class="n">delay</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span> <span class="s1">&#39;phi0&#39;</span><span class="p">:</span> <span class="n">phi0</span><span class="p">,</span>
+                  <span class="s1">&#39;subtract_bg&#39;</span><span class="p">:</span> <span class="n">subtract_bg</span><span class="p">,</span> <span class="s1">&#39;fr_init&#39;</span><span class="p">:</span> <span class="n">fr_init</span><span class="p">,</span>
+                  <span class="s1">&#39;Ql_init&#39;</span><span class="p">:</span> <span class="n">Ql_init</span><span class="p">,</span> <span class="s1">&#39;weight_width&#39;</span><span class="p">:</span> <span class="n">weight_width</span><span class="p">,</span>
+                  <span class="s1">&#39;print_res&#39;</span><span class="p">:</span> <span class="n">print_res</span><span class="p">,</span> <span class="s1">&#39;plt_res&#39;</span><span class="p">:</span> <span class="n">plot_res</span><span class="p">,</span>
+                  <span class="s1">&#39;maxfev&#39;</span><span class="p">:</span> <span class="n">maxfev</span><span class="p">,</span> <span class="s1">&#39;comb_slopes&#39;</span><span class="p">:</span> <span class="n">comb_slopes</span><span class="p">,</span>
+                  <span class="s1">&#39;final_mag&#39;</span><span class="p">:</span> <span class="n">final_mag</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span> <span class="o">=</span> <span class="n">Notch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Further save fitresults in data_complex class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitresults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">fitresults</span></div>
+
+<div class="viewcode-block" id="data_complex.circle_fit_reflection"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.circle_fit_reflection">[docs]</a>    <span class="k">def</span> <span class="nf">circle_fit_reflection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phi0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                              <span class="n">subtract_bg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fr_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Ql_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">weight_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">print_res</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plt_res</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">comb_slopes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">final_mag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maxfev</span><span class="o">=</span><span class="mf">1e6</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Circle fit for reflection configuration.</span>
+
+<span class="sd">        This function fits the complex data to a reflection-configuration</span>
+<span class="sd">        circuit model. By default it will print and plot the fit results.</span>
+<span class="sd">        To disable this automation, use the `print_res` and `plot_res`</span>
+<span class="sd">        keywords.</span>
+
+<span class="sd">        All the fit parameters and data is stored in a .circuit subobject of</span>
+<span class="sd">        this datamodule.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        -----</span>
+<span class="sd">            If something goes wrong with the fit, you can for example use the</span>
+<span class="sd">            .circuit.plot_steps() function to show the individual steps of the</span>
+<span class="sd">            fit routine.</span>
+
+<span class="sd">        Measurement Setup::</span>
+
+<span class="sd">        |            --[Z1]---</span>
+<span class="sd">        |    IN              |</span>
+<span class="sd">        |    OUT            [Z3]</span>
+<span class="sd">        |                    |</span>
+<span class="sd">        |            ---------</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        delay : float</span>
+<span class="sd">            Set cable delay manually, otherwise determined by the fitting</span>
+<span class="sd">            routine. Use large span to determine delay. Can be obtained by</span>
+<span class="sd">            .get_delay()</span>
+<span class="sd">        a : float</span>
+<span class="sd">            Set a manually</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            Set alpha manually</span>
+<span class="sd">        phi0 : float</span>
+<span class="sd">            Impedance mismatch expressed in radians</span>
+<span class="sd">        substract_bg : bool</span>
+<span class="sd">            Subtract linear background</span>
+<span class="sd">        fr_init : float</span>
+<span class="sd">            Initial guess for resonance frequency. In GHz.</span>
+<span class="sd">        Ql_init : float</span>
+<span class="sd">            Initial guess for Lorentzian fit</span>
+<span class="sd">        weight_width : float</span>
+<span class="sd">            Multiply of FWHM frequency for which points are weighted equally.</span>
+<span class="sd">            Outside the points are weighted less.</span>
+<span class="sd">        print_res : bool</span>
+<span class="sd">            Print fit results</span>
+<span class="sd">        plot_res : bool</span>
+<span class="sd">            Plot fit results</span>
+<span class="sd">        comb_slopes : bool</span>
+<span class="sd">            Fit through whole phase instead of start and end separately</span>
+<span class="sd">            (with a hole in the middle) for obtaining the delay.</span>
+<span class="sd">        final_mag : bool</span>
+<span class="sd">            Use just magnitude data for final fit of Ql and fr. This is useful,</span>
+<span class="sd">            since sometimes the phase data is very noisy in comparison to the</span>
+<span class="sd">            magnitude data. To minimize the error, therefore the final fit can</span>
+<span class="sd">            be just performed on the magnitude data.</span>
+<span class="sd">        maxfev : int</span>
+<span class="sd">            Maximum number of iterations for fits</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;delay&#39;</span><span class="p">:</span> <span class="n">delay</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span> <span class="s1">&#39;phi0&#39;</span><span class="p">:</span> <span class="n">phi0</span><span class="p">,</span>
+                  <span class="s1">&#39;subtract_bg&#39;</span><span class="p">:</span> <span class="n">subtract_bg</span><span class="p">,</span> <span class="s1">&#39;fr_init&#39;</span><span class="p">:</span> <span class="n">fr_init</span><span class="p">,</span>
+                  <span class="s1">&#39;Ql_init&#39;</span><span class="p">:</span> <span class="n">Ql_init</span><span class="p">,</span> <span class="s1">&#39;weight_width&#39;</span><span class="p">:</span> <span class="n">weight_width</span><span class="p">,</span>
+                  <span class="s1">&#39;print_res&#39;</span><span class="p">:</span> <span class="n">print_res</span><span class="p">,</span> <span class="s1">&#39;plt_res&#39;</span><span class="p">:</span> <span class="n">plt_res</span><span class="p">,</span> <span class="s1">&#39;maxfev&#39;</span><span class="p">:</span> <span class="n">maxfev</span><span class="p">,</span>
+                  <span class="s1">&#39;comb_slopes&#39;</span><span class="p">:</span> <span class="n">comb_slopes</span><span class="p">,</span> <span class="s1">&#39;final_mag&#39;</span><span class="p">:</span> <span class="n">final_mag</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span> <span class="o">=</span> <span class="n">Reflection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Further save fitresults in data_complex class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitresults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">fitresults</span></div>
+
+<div class="viewcode-block" id="data_complex.plot_fitted_data"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.plot_fitted_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_fitted_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot fitted data&quot;&quot;&quot;</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">plot_cfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_complex.plot_steps"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.plot_steps">[docs]</a>    <span class="k">def</span> <span class="nf">plot_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot each step of the circlefit routine&quot;&quot;&quot;</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">plot_steps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_complex.get_delay"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.get_delay">[docs]</a>    <span class="k">def</span> <span class="nf">get_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Outputs the delay. Alias for .circuit.delay&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">delay</span></div>
+
+    <span class="k">def</span> <span class="nf">get_no_of_photons_full_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">power_dbm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">get_no_of_photons_full_info</span><span class="p">(</span><span class="n">power_dbm</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_no_of_photons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">power_dbm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">get_no_of_photons</span><span class="p">(</span><span class="n">power_dbm</span><span class="p">)</span>
+
+<div class="viewcode-block" id="data_complex.circle_fit_dc"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.circle_fit_dc">[docs]</a>    <span class="k">def</span> <span class="nf">circle_fit_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias for circle_fit_reflection(phi=None)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_fit_reflection</span><span class="p">(</span><span class="n">phi0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_complex.do_circle_fit_dc"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.do_circle_fit_dc">[docs]</a>    <span class="k">def</span> <span class="nf">do_circle_fit_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias to circle_fit_reflection for downwards compatibility.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Abbreviated function name. Use circle_fit_dc in future!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_fit_reflection</span><span class="p">(</span><span class="n">phi0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="data_complex.do_circle_fit_notch"><a class="viewcode-back" href="../../datamodule.html#DataModule.data_complex.do_circle_fit_notch">[docs]</a>    <span class="k">def</span> <span class="nf">do_circle_fit_notch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias to circle_fit_reflection for downwards compatibility.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Abbreviated function name. Use circle_fit_notch() instead&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_fit_notch</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">do_circle_fit_reflection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Abbreviated function name. Use circle_fit_reflection in&#39;</span> <span class="o">+</span>
+              <span class="s1">&#39;future!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_fit_reflection</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Christian Schneider.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
