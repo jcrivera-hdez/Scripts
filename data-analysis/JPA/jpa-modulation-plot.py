@@ -71,18 +71,24 @@ wsize = 3
 
 # Frequency step
 df = np.mean( np.diff(freq_arr) )
-# Phase
+
+# Phase in rad
 phase = np.unwrap( np.angle(S11_arr) )
-# Phase smoothed
+
+# Phase smoothed in rad
 smoothphase = np.zeros( (len(bias_arr), len(freq_arr)-2) )
 for idx in range(len(phase[:,0])):
     smoothphase[idx] = np.convolve( phase[idx,:], np.ones((wsize,))/wsize, mode='valid')
 
 # Group delay in ns
-gd = np.abs( np.diff(phase/2/np.pi/df, axis=1)) * 1e9
+gd = np.abs( np.diff(smoothphase, axis=1) / 2/np.pi/df ) * 1e9
+
+# Frequency for group delay plot
+lendiff = len(freq_arr) - len(gd[0])
+freq_gd = freq_arr[:-lendiff] + df*lendiff/2
 
 
-# Mutual inductance value
+# Parameters values
 M = 7.65e-13            # H
 Rb = 1000               # Ohm
 Flux_quanta = 2.07e-15  # Wb
@@ -91,25 +97,19 @@ Flux_quanta = 2.07e-15  # Wb
 flux_arr = M/Rb * bias_arr / Flux_quanta
 
 # Plot group delay
-plotgd( gd, bias_arr, freq_arr, 'bias')
-plotgd( gd, flux_arr, freq_arr, 'flux')
-
-#%%
-fig, ax = plt.subplots(1)
-plotSjk(freq_arr, S11_arr[400])
-fig, ax = plt.subplots(1)
-plotSjk(freq_arr, S11_arr[555])
-
-
-#%%
-fig, ax = plt.subplots(1)
-ax.plot( freq_arr[:-1]/1e9, gd[555] )
-ax.set_xlabel( 'frequency [GHz]' )
-ax.set_ylabel( 'group delay [ns]')
+plotgd( gd, bias_arr, freq_gd, 'bias')
+plotgd( gd, flux_arr, freq_gd, 'flux')
 
 
 fig, ax = plt.subplots(1)
 ax.plot( freq_arr/1e9, phase[555] )
+ax.set_xlabel( 'frequency [GHz]' )
+ax.set_ylabel( 'phase [rad]')
+
+
+#%%
+fig, ax = plt.subplots(1)
+ax.plot( freq_gd/1e9, gd[555] )
 ax.set_xlabel( 'frequency [GHz]' )
 ax.set_ylabel( 'group delay [ns]')
 
