@@ -13,7 +13,7 @@ from presto import lockin
 # Save folder location, save file name and run name
 
 save_folder = r"C:/Users/Admin/Desktop/Local_JC/"
-save_file = r"Test.hdf5"
+save_file = r"test.hdf5"
 myrun = time.strftime("%Y-%m-%d_%H_%M_%S")
 
 t_start = time.strftime("%Y-%m-%d_%H_%M_%S")
@@ -98,7 +98,6 @@ def save_data(folder, file, sample, myrun, freq_arr, s21_arr, verbose=False):
         print("Saved data")
 
 
-# Set output DC voltage on Presto 
 def setvolt( bias_val ):
     
     with lockin.Lockin( address = ADDRESS ) as lck:
@@ -109,7 +108,8 @@ def setvolt( bias_val ):
                                   )
         
         time.sleep(0.1)
-           
+
+
 def setup_vna(verbose=False):
     
     # standard settings
@@ -134,7 +134,8 @@ def setup_vna(verbose=False):
     if verbose:
         print("VNA ref. oscillator: {}".format(myVNA.query("SENS:ROSC:SOUR?")))
         print("VNA setup for S21 sweep")
-    
+
+
 def sweep_vna(f_start, f_stop, intbw, f_delta, p_in, Navg, verbose=False):
     
     # Check
@@ -246,6 +247,7 @@ def sweep_vna(f_start, f_stop, intbw, f_delta, p_in, Navg, verbose=False):
 
     return { 'freq_arr':freq_arr, 's11_arr':s21 }
 
+
 def disconnect_vna(verbose=False):
     # VNA RF off
     myVNA.write("OUTPut:STATe OFF")
@@ -254,6 +256,7 @@ def disconnect_vna(verbose=False):
     rm.close()
     if verbose:
         print("VNA disconnected")
+
 
 ############################################################################
 
@@ -286,7 +289,7 @@ data = sweep_vna( f_start, f_stop, intbw, f_delta, p_in, Navg, verbose )
 freq_arr = data['freq_arr']
 s11_arr = data['s21']
 
-        
+# Save data    
 save_data(save_folder, save_file, sample, myrun, freq_arr, s11_arr, verbose)
         
         
