@@ -295,7 +295,7 @@ with tqdm( total=len(bias_arr), ncols=80 ) as pbar:
         # VNA frequency sweep
         data = sweep_vna( f_start, f_stop, intbw, f_delta, p_in, Navg, verbose )
         freq_arr = data['freq_arr']
-        s11_arr[bias_idx] = data['s21']
+        s11_arr[bias_idx] = data['s11_arr']
         
         pbar.update(1)
 

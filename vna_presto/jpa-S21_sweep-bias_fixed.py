@@ -287,7 +287,7 @@ setvolt( bias_val )
 # VNA frequency sweep
 data = sweep_vna( f_start, f_stop, intbw, f_delta, p_in, Navg, verbose )
 freq_arr = data['freq_arr']
-s11_arr = data['s21']
+s11_arr = data['s11_arr']
 
 # Save data    
 save_data(save_folder, save_file, sample, myrun, freq_arr, s11_arr, verbose)
