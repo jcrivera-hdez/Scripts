@@ -39,7 +39,7 @@ def plot_gain_imshow( gain, x_arr, y_arr, fig, ax):
     xmin, xmax = np.min(x_arr), np.max(x_arr)
     ymin, ymax = np.min(y_arr)/1e9, np.max(y_arr)/1e9
     
-    cutoff = 0.1
+    cutoff = 0.01
     zmin = np.percentile( gain, cutoff )
     zmax = np.percentile( gain, 100. - cutoff )
     
@@ -68,7 +68,7 @@ def plot_gainsweep( gain_arr, freq_arr, bias_arr ):
     fig, ax = plt.subplots( nr_rows, nr_columns, figsize=[19, 9.5], constrained_layout=True )
     ax = ax.flatten()
        
-    cutoff = 0.1  # %
+    cutoff = 0.01  # %
     zmin = np.percentile( gain_arr, cutoff )
     zmax = np.percentile( gain_arr, 100. - cutoff )
     
@@ -77,8 +77,8 @@ def plot_gainsweep( gain_arr, freq_arr, bias_arr ):
         a = ax[axi].pcolormesh( bias_arr,
                                 freq_arr/1e9,
                                 gain_arr[amp_ind].T, 
-                                vmin=zmin, 
-                                vmax=zmax, 
+                                vmin = zmin, 
+                                vmax = zmax, 
                                 cmap="RdBu_r",
                                 )
         ax[axi].set_title( r'$A_p$' + f' = {pump_pwr_arr[amp_ind+1]:.3f} fsu' )
@@ -92,6 +92,7 @@ def plot_gainsweep( gain_arr, freq_arr, bias_arr ):
 # Load data    
 file = r'D:\JPA\JPA-Data\QuantumGarage.hdf5'
 run = '2022-06-02_12_54_22'
+# run = '2022-06-03_16_48_43'
 idx_str = "JPA/{}".format(run)
 
 # Open hdf5 file
@@ -121,7 +122,7 @@ gain_arr = dB(usb_arr[1:])  - gain_ref
 
 # Plot background (no-pump) response
 pump_idx = 0
-fig0, ax0 = plt.subplots(1, constrained_layout=True)
+fig0, ax0 = plt.subplots( 1, constrained_layout=True )
 plot_traces( usb_arr[pump_idx][bias_ind], freq_arr, ax0 )
 
 # Plot gain at a given pump power
@@ -135,3 +136,7 @@ fig2, ax2 = plt.subplots(1, constrained_layout=True)
 for pump_idx in range(nr_pump_pwr-1):
     plot_traces( usb_arr[pump_idx, bias_ind], freq_arr, ax2 )
 ax2.legend( title=r'$A_p$' )
+
+fig, ax = plt.subplots( 1, constrained_layout=True )
+ax.plot( freq_arr, gain_arr[-1,bias_ind,:])
+
