@@ -92,7 +92,7 @@ def plot_gainsweep( gain_arr, freq_arr, bias_arr ):
 # Load data    
 file = r'D:\JPA\JPA-Data\QuantumGarage.hdf5'
 run = '2022-06-02_12_54_22'
-# run = '2022-06-03_16_48_43'
+run = '2022-06-03_16_48_43'
 idx_str = "JPA/{}".format(run)
 
 # Open hdf5 file
@@ -109,7 +109,7 @@ with h5py.File(file, "r") as dataset:
 
 nr_pump_pwr = len(pump_pwr_arr)  
 nr_bias = len(bias_arr) 
-bias_ind = 19
+bias_ind = 40
 
 # # USB data normalized to reference
 # usb_norm_arr = np.abs(usb_arr[1:]**2)/np.abs(usb_arr[0]**2)
@@ -137,6 +137,11 @@ for pump_idx in range(nr_pump_pwr-1):
     plot_traces( usb_arr[pump_idx, bias_ind], freq_arr, ax2 )
 ax2.legend( title=r'$A_p$' )
 
-fig, ax = plt.subplots( 1, constrained_layout=True )
-ax.plot( freq_arr, gain_arr[-1,bias_ind,:])
 
+fig, ax = plt.subplots( 1, constrained_layout=True )
+for i in range(nr_pump_pwr-1):
+    ax.plot( freq_arr/1e9, gain_arr[i,bias_ind,:], label=f'{pump_pwr_arr[i+1]:.3f} fsu' )
+    ax.set_xlabel('frequency [GHz]')
+ax.set_ylabel('gain [dB]')
+ax.set_title( r'DC bias ' + f'= {bias_arr[bias_ind]:.3f} V' )
+ax.legend( title=r'$A_p$' )
