@@ -14,6 +14,12 @@ def plot_traces( trace, freq_arr, ax ):
     ax.set_title( r'DC bias ' + f'= {bias_arr[bias_ind]:.3f} V' )
     ax.set_xlabel( 'frequency [GHz]' )
     ax.set_ylabel( 'gain [dB]' )
+    
+def plot_gain_cut( gain, freq_arr, ax ):
+    ax.plot( freq_arr/1e9, gain, label=f'{pump_pwr_arr[pump_idx+1]:.3f} fsu' )
+    ax.set_title( r'DC bias ' + f'= {bias_arr[bias_ind]:.3f} V' )
+    ax.set_xlabel( 'frequency [GHz]' )
+    ax.set_ylabel( 'gain [dB]' )
 
 
 def plot_gain( gain, freq_arr, bias_arr, fig, ax ):
@@ -110,21 +116,34 @@ with h5py.File(file, "r") as dataset:
 
 nr_pump_pwr = len(pump_pwr_arr)  
 nr_bias = len(bias_arr) 
-bias_ind = 40
+bias_ind = 42
 
-# # USB data normalized to reference
-# usb_norm_arr = np.abs(usb_arr[1:]**2)/np.abs(usb_arr[0]**2)
-# gain_norm_arr = dB(usb_norm_arr)
+# Load data    
+file = r'D:\JPA\JPA-Data\QuantumGarage.hdf5'
+run = '2022-06-09_10_46_19'
+idx_str = "JPA/{}".format(run)
+
+# Open hdf5 file
+with h5py.File(file, "r") as dataset:
+    
+    # Attributes
+    df = dataset[idx_str].attrs["df"]
+
+    # Data
+    freq_ref_arr = np.asarray(dataset[idx_str]["freq sweep"])
+    usb_ref_arr = np.asarray(dataset[idx_str]["USB"])
+
 
 # Gain normalised
+# gain_ref = dB(usb_ref_arr) - 40
 gain_ref = dB(usb_arr[0])
 gain_arr = dB(usb_arr[1:])  - gain_ref
 
 
 # Plot background (no-pump) response
-pump_idx = 0
-fig0, ax0 = plt.subplots( 1, constrained_layout=True )
-plot_traces( usb_arr[pump_idx][bias_ind], freq_arr, ax0 )
+# pump_idx = 0
+# fig0, ax0 = plt.subplots( 1, constrained_layout=True )
+# plot_gain_cut( gain_ref, freq_ref_arr, ax0 )
 
 # Plot gain at a given pump power
 fig1, ax1 = plt.subplots(1, constrained_layout=True)
