@@ -71,7 +71,7 @@ def save_data( folder, file, sample, myrun, freq, pump_pwr, dc_bias, usb_arr ):
         # Write dataset attributes
         savefile[freq_data_str].attrs["Unit"] = "Hz"
         savefile[pump_pwr_data_str].attrs["Unit"] = "fsu"
-        savefile[bias_data_str].attrs["Unit"] = "fsu"
+        savefile[bias_data_str].attrs["Unit"] = "V"
         savefile[usb_data_str].attrs["Unit"] = "fsu complex"
         
 
