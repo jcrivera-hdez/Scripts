@@ -116,7 +116,7 @@ dither = True
 
 # DC BIAS PARAMETERS
 # DC bias values in Volts
-bias_min = 0.75
+bias_min = 0.78
 bias_max = 0.83
 nr_bias = 101
 bias_arr = np.linspace( bias_min, bias_max, nr_bias )
