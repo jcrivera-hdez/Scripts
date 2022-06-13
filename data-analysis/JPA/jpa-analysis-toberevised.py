@@ -20,11 +20,11 @@ plt.rcParams["legend.frameon"] = False
 
 
 # Load data    
-file = r'D:\JPA\JPA-Data\QuantumGarage-JPA.hdf5'
+file = r'D:\JPA\JPA-Data\JPA-Data-2022_03.hdf5'
 meas_type = 'DC bias sweep'
 run = '2022-04-06_13_01_56'
 run = '2022-05-25_16_05_57'
-
+run = '2022-03-23_15_46_36'
 
 run_str = "{}/{}".format(meas_type, run)
 idx_str = "{}/{}".format(meas_type, run)
@@ -88,17 +88,17 @@ ax.set_ylabel( 'DC bias [V]' )
 ax.set_xlabel( 'frequency [GHz]' )
 fig.colorbar( a, ax=ax, label='group delay [s]' )
 
-# # d(phase)/d(DC) as a function of the frequency and the DC bias
-# # choose limits for colorbar
-# cutoff = .1  # %
-# zmax = np.percentile( dφdbias_arr, cutoff )
-# zmin = np.percentile( dφdbias_arr, 100. - cutoff )
+# d(phase)/d(DC) as a function of the frequency and the DC bias
+# choose limits for colorbar
+cutoff = .1  # %
+zmax = np.percentile( dφdbias_arr, cutoff )
+zmin = np.percentile( dφdbias_arr, 100. - cutoff )
         
-# fig, ax = plt.subplots( 1 )
-# b = ax.pcolormesh( freq_arr/1e9, bias_arr, dφdbias_arr, shading='nearest', cmap='RdBu_r', vmin=zmin, vmax=zmax )
-# ax.set_ylabel( 'DC bias [V]' )
-# ax.set_xlabel( 'frequency [GHz]' )
-# fig.colorbar( b, ax=ax, label=r'$\dfrac{\partial\phi}{\partial bias}$' )
+fig, ax = plt.subplots( 1 )
+b = ax.pcolormesh( freq_arr/1e9, bias_arr, dφdbias_arr, shading='nearest', cmap='RdBu_r', vmin=zmin, vmax=zmax )
+ax.set_ylabel( 'DC bias [V]' )
+ax.set_xlabel( 'frequency [GHz]' )
+fig.colorbar( b, ax=ax, label=r'$\dfrac{\partial\phi}{\partial bias}$' )
 
 
 #%% Pump power sweep
