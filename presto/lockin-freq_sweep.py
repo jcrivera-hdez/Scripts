@@ -69,7 +69,7 @@ def save_data( folder, file, sample, myrun, freq_arr, usb_arr ):
 
 # Saving folder location, saving file and run name
 save_folder = r'D:/JPA/JPA-Data'
-save_file = r'QuantumGarage.hdf5'
+save_file = r'test.hdf5'
 myrun = time.strftime("%Y-%m-%d_%H_%M_%S")
 t_start = time.strftime("%Y-%m-%d_%H_%M_%S")
 
