@@ -52,12 +52,11 @@ def plotgd( gd, x_arr, y_arr, label):
 
 
 
-# Load data    
-file = r'D:\JPA\JPA-Data\QuantumGarage.hdf5'
-# run = '2022-06-01_18_12_24'
-run = '2022-06-02_17_35_00'
+# Load data
+file = r'D:\JPA\JPA-Data\QuantumGarage-JPA.hdf5'
+cooldown = '2022-06-07'
 run = '2022-06-07_17_01_41'
-idx_str = "JPA/{}".format(run)
+idx_str = "{}/{}".format(cooldown, run)
 
 # Open hdf5 file
 with h5py.File(file, "r") as dataset:
@@ -102,10 +101,12 @@ plotgd( gd, bias_arr, freq_gd, 'bias')
 plotgd( gd, flux_arr, freq_gd, 'flux')
 
 # Group delay at a given dc bias value
+bias_idx = 555
 fig, ax = plt.subplots(1)
-ax.plot( freq_gd/1e9, gd[555] )
+ax.plot( freq_gd/1e9, gd[bias_idx] )
 ax.set_xlabel( 'frequency [GHz]' )
 ax.set_ylabel( 'group delay [ns]')
+ax.set_title( 'DC bias ' + f'= {bias_arr[bias_idx]:.3f} V') 
 
 
 
