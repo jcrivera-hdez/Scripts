@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # Greek alphabet: α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, ο, π, ρ, ς, σ, τ, υ, φ, χ, ψ, ω
 
 def dB( data ):
-    return 20 * np.log10( np.abs(data**2) )
+    return 20 * np.log10( np.abs(data) )
 
 
 def plot_traces( trace, freq_arr, ax ):
@@ -100,6 +100,7 @@ file = r'D:\JPA\JPA-Data\QuantumGarage.hdf5'
 run = '2022-06-02_12_54_22'
 run = '2022-06-03_16_48_43'
 run = '2022-06-08_16_27_44'
+run = '2022-06-09_17_23_32'
 idx_str = "JPA/{}".format(run)
 
 # Open hdf5 file
@@ -116,7 +117,7 @@ with h5py.File(file, "r") as dataset:
 
 nr_pump_pwr = len(pump_pwr_arr)  
 nr_bias = len(bias_arr) 
-bias_ind = 42
+bias_ind = 55
 
 # Load data    
 file = r'D:\JPA\JPA-Data\QuantumGarage.hdf5'
@@ -135,15 +136,15 @@ with h5py.File(file, "r") as dataset:
 
 
 # Gain normalised
-# gain_ref = dB(usb_ref_arr) - 40
-gain_ref = dB(usb_arr[0])
+gain_ref = dB(usb_ref_arr) - 20
+# gain_ref = dB(usb_arr[0])
 gain_arr = dB(usb_arr[1:])  - gain_ref
 
 
 # Plot background (no-pump) response
-# pump_idx = 0
-# fig0, ax0 = plt.subplots( 1, constrained_layout=True )
-# plot_gain_cut( gain_ref, freq_ref_arr, ax0 )
+pump_idx = 0
+fig0, ax0 = plt.subplots( 1, constrained_layout=True )
+plot_gain_cut( gain_ref, freq_ref_arr, ax0 )
 
 # Plot gain at a given pump power
 fig1, ax1 = plt.subplots(1, constrained_layout=True)
