@@ -116,6 +116,9 @@ Npix = 500
 # Number pf pixels we discard
 Nskip = 10
 
+# DC bias in V
+bias_val = -0.33
+
 
 # SIGNAL PARAMETERS
 # Signal output amplitude from Vivace/Presto
@@ -236,6 +239,7 @@ myrun_attrs = {"Meas": 'gain',
                "amp": amp_sig,
                "Npixels": Npix,
                "Nskip": Nskip,
+               "DC bias": bias_val,
                "Dither": dither,
                "t_start": t_start,
                "t_end": t_end,
