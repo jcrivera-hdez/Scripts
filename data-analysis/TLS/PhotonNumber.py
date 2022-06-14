@@ -17,7 +17,6 @@ frame = pd.concat( li, ignore_index=True, axis=0 )
 frame=np.array(frame)
 
 
-
 # rows in order: Qi, Qi_err. Qc, Qc_err, Ql, Ql_err, fr, fr_err, pow_span, n
 Qi = np.array([ frame[k][:] for k in range(0, len(frame), 10) ])
 Qi_err = np.array([ frame[k+1][:] for k in range(0, len(frame), 10) ])
@@ -28,7 +27,6 @@ power = np.array([ frame[k+8][:] for k in range(0, len(frame), 10) ])
 
 plt.style.use('bmh')        # to explore your options: print(plt.style.available)
 markers=['s','v','X', 'D','o','^','p','P']
-
 
 
 #%% Qi vs n
@@ -59,7 +57,6 @@ ax.set_xlabel( 'VNA output ower [dBm]', fontsize=24 )
 ax.set_ylabel( '$f_r$', fontsize=24 )
 
 
-
 #%% n vs P
 
 fig, ax = plt.subplots( figsize=(15, 10) )
@@ -71,7 +68,6 @@ for h in range (0, len(Qi)):
     
 ax.set_xlabel( 'VNA output power [dBm]', fontsize=24 )
 ax.set_ylabel( r'$\langle n\rangle$', fontsize=24 )
-
 
 
 #%% 
