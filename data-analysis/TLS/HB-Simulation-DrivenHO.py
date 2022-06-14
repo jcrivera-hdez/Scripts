@@ -6,6 +6,10 @@ import scipy
 import scipy.linalg
 from scipy.signal import find_peaks
 
+# Greek alphabet: α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, ο, π, ρ, ς, σ, τ, υ, φ, χ, ψ, ω
+
+π = np.pi
+
 # Plotting parameters
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['figure.constrained_layout.use'] = True
@@ -15,10 +19,6 @@ plt.rcParams['xtick.labelsize'] = 16
 plt.rcParams['ytick.labelsize'] = 16
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams["legend.frameon"] = False
-
-# Greek alphabet: α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, ο, π, ρ, ς, σ, τ, υ, φ, χ, ψ, ω
-
-π = np.pi
 
 
 
@@ -113,6 +113,7 @@ for i in range( len(Y) ):
         
 # Drives indices
 ind_drives = np.array([ 954, 956 ])
+# ind_drives = np.array([ 1908, 1912 ]) # Indices when having 2T
 
 signal_amp_array_imp = np.zeros_like( max_ind[0], dtype=complex )
 for i, index in enumerate( max_ind[0] ):
