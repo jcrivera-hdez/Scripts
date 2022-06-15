@@ -37,7 +37,7 @@ fs = 20
 N = int(fs/df)
 
 T = 1. / df
-T_relax = 20 * T
+T_relax = 10 * T
 dt = 1. / fs
 t_all = dt * ( np.arange( (T+T_relax)/dt ) + 1 )
 
@@ -195,4 +195,4 @@ f0_recon = F0_recon * B / (2*π)
 print( "f0_recon = {} Hz".format(f0_recon) )
 print( "κ0_recon = {}".format(κ0_recon) )
 print( "κ1_recon = {}".format(κ1_recon) )
-print( "F0_recon = {} Hz".format(F0_recon) )
+print( "F0_recon = {}".format(F0_recon) )

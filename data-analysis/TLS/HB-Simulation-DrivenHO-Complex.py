@@ -75,8 +75,8 @@ for i,t in enumerate( t_all ):
 a_all = y_all[:,0] + 1.0j*y_all[:,1]
 
 # We save one oscillation once we reached the steady state
-a = a_all[-10*N:]
-t = t_all[-10*N:]
+a = a_all[-1*N:]
+t = t_all[-1*N:]
 
 # Fourier domain solution
 A = np.fft.fft( a ) / len(a)           # rfft or fft? Now a is complex
@@ -109,7 +109,7 @@ print( max_ind[0] )
 #         A[i] = 0
         
 # Drives indices
-ind_drives = np.array([ 9540, 9560, 190440, 190460 ])
+ind_drives = np.array([ 954, 956, 19044, 19046 ])
 
 # Drives array
 signal_amp_array_imp = np.zeros_like( max_ind[0], dtype=complex )
