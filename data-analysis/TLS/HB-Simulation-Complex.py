@@ -86,15 +86,12 @@ def recon_driven( A, f ):
     # Scale parameters by drive force assuming known mass
     AA, B, C = p
     
-    # Assuming a known drive
-    m_recon = 1.
-    
     # Parameters reconstructed
     F0_recon = 1/AA
     f0_recon = F0_recon * B / (2*π)
     κ0_recon = F0_recon * C
     
-    return F0_recon, f0_recon, κ0_recon
+    return F0_recon, f0_recon, κ0_recon, Q_fit
 
 
 def recon_nonlinear( A, f ):
@@ -142,16 +139,13 @@ def recon_nonlinear( A, f ):
     # Scale parameters by drive force assuming known mass
     A, B, C, D = p
     
-    # Assuming a known drive
-    m_recon = 1.
-    
     # Parameters reconstructed
     F0_recon = 1/A
     f0_recon = F0_recon * B / (2*π)
     κ0_recon = F0_recon * C
     κ1_recon = F0_recon * D
     
-    return F0_recon, f0_recon, κ0_recon, κ1_recon
+    return F0_recon, f0_recon, κ0_recon, κ1_recon, Q_fit
 
 
 # Drive parameters
@@ -257,7 +251,7 @@ for i, index in enumerate( max_ind[0] ):
 
 
 # Reconstruction section
-F0_recon, f0_recon, κ0_recon = recon_driven( A, f )
+F0_recon, f0_recon, κ0_recon, Q_fit = recon_driven( A, f )
     
 print( "f0_recon = {} Hz".format(f0_recon) )
 print( "κ0_recon = {}".format(κ0_recon) )
@@ -265,7 +259,7 @@ print( "F0 = {}".format(F0_recon) )
 print( "----------------------------------")
 
 
-#%%
+#%% NON-LINEAR DAMPING
 
 # System parameters
 m = 1.
@@ -357,7 +351,7 @@ ax.set_ylabel( '$\mathcal{F}(a)$' )
 
 
 # Reconstruction section
-F0_recon, f0_recon, κ0_recon, κ1_recon = recon_nonlinear( A, f )
+F0_recon, f0_recon, κ0_recon, κ1_recon, Q_fit = recon_nonlinear( A, f )
 
 print( "f0_recon = {} Hz".format(f0_recon) )
 print( "κ0_recon = {}".format(κ0_recon) )
