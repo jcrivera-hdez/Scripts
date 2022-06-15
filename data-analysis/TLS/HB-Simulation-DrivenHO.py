@@ -28,12 +28,70 @@ def eom( t, y, m, c, k, drive ):
              1./m * ( -c*y[1] - k*y[0] + drive(t))
              ]
 
+
 # Drives
 def imp_drive( t, f1, f2, F0 ):
     return F0 * ( np.cos(2*π*f1*t) + np.cos(2*π*f2*t) )
 
 
-# Drive signal
+def reconstruction( Y, f ):
+    
+    # Angular frequency
+    ω = 2*π * f
+    
+    # Create H-matrix
+    col1 = (-1 * ω**2 * Y)[max_ind[0]]
+    col2 = (1.0j * ω * Y)[max_ind[0]]
+    col3 = Y[max_ind[0]]
+    
+    # Merge all columns
+    H = np.vstack(( col1, col2, col3 ))
+    
+    # Making the matrix real instead of complex
+    Hcos = np.real( H )
+    Hsin = np.imag( H )
+    H = np.hstack(( Hcos, Hsin ))
+    
+    # Normalize H for a more stable inversion
+    Nm = np.diag( 1. / np.max(np.abs(H), axis=1) )
+    H_norm = np.dot( Nm, H )  # normalized H-matrix
+    
+    # The drive vector, Q (from the Yasuda paper)
+    Qcos = np.real( signal_amp_array_imp )
+    Qsin = np.imag( signal_amp_array_imp ) 
+    Q = np.hstack(( Qcos, Qsin ))
+    
+    # Solve system Q = H*p
+    H_norm_inv = scipy.linalg.pinv( H_norm )
+    p_norm = np.dot( Q, H_norm_inv )
+    
+    # Re-normalize p-values
+    # Note: we have actually solved Q = H * Nm * Ninv * p
+    # Thus we obtained Ninv*p and multiply by Nm to obtain p
+    p = np.dot( Nm, p_norm )  # re-normalize parameter values
+    
+    # Forward calculation to check result, should be q
+    Q_fit = np.dot( p, H )
+    
+    # Scale parameters by drive force assuming known mass
+    A, B, C = p
+    
+    # Assuming a known drive
+    m_recon = 1.
+    
+    # Parameters reconstructed
+    F0_recon = 1/A
+    c_recon = F0_recon * B
+    k_recon = F0_recon * C
+    
+    f0_recon = np.sqrt(k_recon/m_recon) / (2*π)
+    κ0_recon = c_recon / ( 2*np.sqrt(m_recon*k_recon) )
+    Qfactor_recon = m_recon*np.sqrt(k_recon/m_recon)/c_recon
+    
+    return F0_recon, f0_recon, κ0_recon, Qfactor_recon
+
+
+# Drive parameters
 F0 = 1
 f1 = 0.954
 f2 = 0.956
@@ -41,6 +99,7 @@ df = 0.001
 fs = 20
 N = int(fs/df)
 
+# Integration parameters
 T = 1. / df
 T_relax = 10 * T
 dt = 1. / fs
@@ -128,60 +187,8 @@ ax.set_xlabel( 'frequency [Hz]' )
 ax.set_ylabel( '$\mathcal{F}(x)$' )
 
 
-
-# Harmonic Balance section
-
-# Angular frequency
-ω = 2*π * f
-
-# Create H-matrix
-col1 = (-1 * ω**2 * Y)[max_ind[0]]
-col2 = (1.0j * ω * Y)[max_ind[0]]
-col3 = Y[max_ind[0]]
-
-# Merge all columns
-H = np.vstack(( col1, col2, col3 ))
-
-# Making the matrix real instead of complex
-Hcos = np.real( H )
-Hsin = np.imag( H )
-H = np.hstack(( Hcos, Hsin ))
-
-# Normalize H for a more stable inversion
-Nm = np.diag( 1. / np.max(np.abs(H), axis=1) )
-H_norm = np.dot( Nm, H )  # normalized H-matrix
-
-# The drive vector, Q (from the Yasuda paper)
-Qcos = np.real( signal_amp_array_imp )
-Qsin = np.imag( signal_amp_array_imp ) 
-Q = np.hstack(( Qcos, Qsin ))
-
-# Solve system Q = H*p
-H_norm_inv = scipy.linalg.pinv( H_norm )
-p_norm = np.dot( Q, H_norm_inv )
-
-# Re-normalize p-values
-# Note: we have actually solved Q = H * Nm * Ninv * p
-# Thus we obtained Ninv*p and multiply by Nm to obtain p
-p = np.dot( Nm, p_norm )  # re-normalize parameter values
-
-# Forward calculation to check result, should be q
-Q_fit = np.dot( p, H )
-
-# Scale parameters by drive force assuming known mass
-A, B, C = p
-
-# Assuming a known drive
-m_recon = 1.
-
-# Parameters reconstructed
-F0_recon = 1/A
-c_recon = F0_recon * B
-k_recon = F0_recon * C
-
-f0_recon = np.sqrt(k_recon/m_recon) / (2*π)
-κ0_recon = c_recon / ( 2*np.sqrt(m_recon*k_recon) )
-Qfactor_recon = m_recon*np.sqrt(k_recon/m_recon)/c_recon
+# Reconstruction section
+F0_recon, f0_recon, κ0_recon, Qfactor_recon = reconstruction( Y, f )
 
 print( "f0_recon = {} Hz".format(f0_recon) )
 print( "κ0_recon = {}".format(κ0_recon) )
