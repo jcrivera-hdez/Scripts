@@ -358,4 +358,3 @@ print( "κ0_recon = {}".format(κ0_recon) )
 print( "κ1_recon = {}".format(κ1_recon) )
 print( "F0_recon = {}".format(F0_recon) )
 print( "----------------------------------")
-
