@@ -119,7 +119,7 @@ fNCO = 4.2e9
 # Bandwidth in Hz
 df = 15e3
 # Number of pixels
-Npix = 15_000_000
+Npix = 1_000_000
 # Number pf pixels we discard
 Nskip = 10
 
