@@ -38,7 +38,7 @@ fs = 20
 N = int(round(fs/df))
 
 T = 1. / df
-T_relax = 20 * T
+T_relax = 10 * T
 dt = 1. / fs
 t_all = dt * (np.arange( (T+T_relax)/dt ) + 1) 
 
