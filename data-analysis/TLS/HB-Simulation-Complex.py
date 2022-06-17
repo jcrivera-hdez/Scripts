@@ -84,12 +84,12 @@ def recon_driven( A, f ):
     Q_fit = np.dot( p, H )
     
     # Scale parameters by drive force assuming known mass
-    AA, B, C = p
+    param_recon = p
     
     # Parameters reconstructed
-    F0_recon = 1/AA
-    f0_recon = F0_recon * B / (2*π)
-    κ0_recon = F0_recon * C
+    F0_recon = 1 / param_recon[0]
+    f0_recon = F0_recon * param_recon[1] / (2*π)
+    κ0_recon = F0_recon * param_recon[2]
     
     return F0_recon, f0_recon, κ0_recon, Q_fit
 
@@ -137,13 +137,13 @@ def recon_nonlinear( A, f ):
     Q_fit = np.dot( p, H )
     
     # Scale parameters by drive force assuming known mass
-    A, B, C, D = p
+    param_recon = p
     
     # Parameters reconstructed
-    F0_recon = 1/A
-    f0_recon = F0_recon * B / (2*π)
-    κ0_recon = F0_recon * C
-    κ1_recon = F0_recon * D
+    F0_recon = 1 / param_recon[0]
+    f0_recon = F0_recon * param_recon[1] / (2*π)
+    κ0_recon = F0_recon * param_recon[2]
+    κ1_recon = F0_recon * param_recon[3]
     
     return F0_recon, f0_recon, κ0_recon, κ1_recon, Q_fit
 
@@ -200,8 +200,8 @@ for i,t in enumerate( t_all ):
 a_all = y_all[:,0] + 1.0j*y_all[:,1]
 
 # We save one oscillation once we reached the steady state
-a = a_all[-1*N:]
-t = t_all[-1*N:]
+a = a_all[-N-1:-1]
+t = t_all[-N-1:-1]
 
 # Fourier domain solution
 A = np.fft.fft( a ) / len(a)           # rfft or fft? Now a is complex
@@ -295,8 +295,8 @@ a_all = y_all[:,0] + 1.0j*y_all[:,1]
 
 
 # We save one oscillation once we reached the steady state
-a = a_all[-N:]
-t = t_all[-N:]
+a = a_all[-N-1:-1]
+t = t_all[-N-1:-1]
 
 # Fourier domain solution
 A = np.fft.fft( a ) / len(a)
@@ -318,16 +318,16 @@ ax[2].set_ylim( 1e-8, 1e2 )
 
 # Indices of the amplitude minima
 max_ind_pos = find_peaks( x = np.abs(A[:2000]),
-                      height = 1e-2,
+                      height = 1e-10,
                       )
 max_ind_neg = find_peaks( x = np.abs(A[-2000:]),
-                      height = 1e-2,
+                      height = 1e-8,
                       )
 
 max_ind = np.append( max_ind_pos[0], len(A)-2000+max_ind_neg[0] )
 
 print( 'Number of peaks: ', len(max_ind) )
-print( max_ind )
+# print( max_ind )
 
 for i in range( len(A) ):
     if i not in max_ind:

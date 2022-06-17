@@ -211,8 +211,8 @@ for i,t in enumerate( t_all ):
     
 
 # We save one oscillation once we reached the steady state
-y = y_all[-N:,0]
-t = t_all[-N:]
+y = y_all[-N-1:-1,0]
+t = t_all[-N-1:-1]
 q = drive(t)
 
 # Fourier domain solution
@@ -301,8 +301,8 @@ for i,t in enumerate( t_all ):
     
 
 # We save one oscillation once we reached the steady state
-y = y_all[-N:,0]
-t = t_all[-N:]
+y = y_all[-N-1:-1,0]
+t = t_all[-N-1:-1]
 q = drive(t)
 
 # Fourier domain solution
@@ -328,7 +328,7 @@ max_ind = find_peaks( x = np.abs(Y[:2000]),
                       )
 
 print( 'Number of peaks: ', len(max_ind[0]) )
-print( max_ind[0] )
+# print( max_ind[0] )
 
 for i in range( len(Y) ):
     if i not in max_ind[0]:
