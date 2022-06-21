@@ -46,10 +46,10 @@ def eom_nonlinear_real( t, state_real, fr, κ0, κ1, λ, drive, ddrive ):
     return tmp
 
 
-def imp_drive( t, f1, f2, F0 ):
+def imp_drive( t, f1, f2, F0, phi1=0, phi2=0 ):
     ω1 = 2*π * f1
     ω2 = 2*π * f2
-    return F0 * ( np.cos(ω1*t) + np.cos(ω2*t) )
+    return F0 * ( np.cos(ω1*t + phi1) + np.cos(ω2*t + phi2) )
 
 
 def imp_drive_derivative( t, f1, f2, F0 ):
@@ -138,8 +138,8 @@ def recon_nonlinear( A, Ain, f ):
     H_norm = np.dot( Nm, H )  # normalized H-matrix
     
     # The drive vector, Q (from the Yasuda paper)
-    Qcos = np.real( Ain[max_ind]/np.sqrt(att) )
-    Qsin = np.imag( Ain[max_ind]/np.sqrt(att) )
+    Qcos = np.real( Ain/np.sqrt(att) )[max_ind]
+    Qsin = np.imag( Ain/np.sqrt(att) )[max_ind]
     Q = np.hstack(( Qcos, Qsin ))
     
     # Solve system Q = H*p
@@ -307,7 +307,7 @@ print( "----------------------------------")
 # System parameters
 f0 = 0.955
 κ0 = 0.025
-κ1 = κ0/100
+κ1 = κ0/10
 # Q_factor??
 
 print( "NON-LINEAR DAMPING OSCILLATOR")
@@ -358,7 +358,7 @@ ax[1].set_xlabel( 'time [s]' )
 ax[1].set_ylabel( '$|a|$' )
 ax[2].set_xlabel( 'frequency [Hz]' )
 ax[2].set_ylabel( '$|\mathcal{F}(a)|$' )
-ax[2].set_ylim( 1e-11, 100 )
+ax[2].set_ylim( 1e-14, 100 )
 
 
 # Indices of the amplitude minima
@@ -387,24 +387,131 @@ Ain_fft = np.fft.fft(ain)/len(ain)
 ind_drives = np.array([ 954, 956, 19044, 19046 ])
 
 # Drives array
-Ain = np.zeros_like( max_ind, dtype=complex )
-for i, index in enumerate( max_ind ):
-    if index in ind_drives:
-        Ain[i] = 0.5
+Ain = np.zeros_like( A, dtype=complex )
+Ain[ind_drives] = 0.5j
     
     
-# Sanity check
-fig, ax = plt.subplots( 1 )
-ax.semilogy( f, np.abs(A) )
-ax.set_xlabel( 'frequency [Hz]' )
-ax.set_ylabel( '$\mathcal{F}(a)$' )
+# # Sanity check
+# fig, ax = plt.subplots( 1 )
+# ax.semilogy( f, np.abs(A) )
+# ax.set_xlabel( 'frequency [Hz]' )
+# ax.set_ylabel( '$\mathcal{F}(a)$' )
 
 
 # Reconstruction section
-λ_recon, f0_recon, κ0_recon, κ1_recon, Q_fit, Q = recon_nonlinear( A, Ain_fft, f )
+λ_recon, f0_recon, κ0_recon, κ1_recon, Q_fit, Q = recon_nonlinear( A, Ain, f )
 
 print( "f0_recon = {} Hz".format(f0_recon) )
 print( "κ0_recon = {}".format(κ0_recon) )
 print( "κ1_recon = {}".format(κ1_recon) )
 print( "λ_recon = {}".format(λ_recon) )
 print( "----------------------------------")
+
+
+#%% NON-LINEAR DAMPING -- Power Sweep
+
+verbose = True
+
+# System parameters
+f0 = 0.955
+κ0 = 0.025
+κ1 = κ0/100
+# Q_factor??
+
+print( "NON-LINEAR DAMPING OSCILLATOR")
+print( "f0 = {} Hz".format(f0) )
+print( "κ0 = {}".format(κ0) )
+print( "κ1 = {}".format(κ1) )
+print( "λ = {}".format(λ) )
+
+# "Power" values
+F0_arr = np.linspace(1, 100, 11)
+
+# Fit parameters
+λ_recon = np.zeros_like( F0_arr )
+f0_recon =  np.zeros_like( F0_arr )
+κ0_recon = np.zeros_like( F0_arr )
+κ1_recon = np.zeros_like( F0_arr )
+
+
+for F0_ind, F0_val in enumerate( F0_arr ):
+        
+    # Drive tones
+    drive = partial( imp_drive, f1=f1, f2=f2, F0=F0_val )
+    ddrive = partial( imp_drive_derivative, f1=f1, f2=f2, F0=F0_val )
+    
+    # Integrator
+    o = ode( eom_nonlinear_real ).set_integrator( 'lsoda', atol=1e-12 , rtol=1e-12 )
+    o.set_f_params( f0, κ0, κ1, λ, drive, ddrive )
+    o.set_initial_value( y0, 0 )
+    
+    # Time-domain solution
+    y_all = np.zeros(( len(t_all), len(y0) ))
+    for i,t in enumerate( t_all ):
+        o.integrate(t)
+        y_all[i] = o.y
+        
+    
+    # Merge the results onto the complex plane
+    a_all = y_all[:,0] + 1.0j*y_all[:,1]
+    
+    
+    # We save one oscillation once we reached the steady state
+    a = a_all[-N-1:-1]
+    t = t_all[-N-1:-1]
+    
+    # Fourier domain solution
+    A = np.fft.fft( a ) / len(a)
+    f = np.fft.fftfreq( len(t), d=dt )
+
+
+    # Indices of the amplitude minima
+    max_ind_pos = find_peaks( x = np.abs(A[:1000]),
+                          height = 1e-9,
+                          )
+    max_ind_neg = find_peaks( x = np.abs(A[-1000:-900]),
+                          height = 1e-8,
+                          )
+    
+    max_ind = np.append( max_ind_pos[0], len(A)-1000+max_ind_neg[0] )
+    
+    if verbose:
+        print( 'Number of peaks: ', len(max_ind) )
+        # print( max_ind )
+
+    for i in range( len(A) ):
+        if i not in max_ind:
+            A[i] = 0
+    
+    ain_all = drive(t_all)
+    ain = ain_all[-N-1:-1]
+    
+    Ain_fft = np.fft.fft(ain)/len(ain)
+    
+    # Drives indices
+    ind_drives = np.array([ 954, 956, 19044, 19046 ])
+    
+    # Drives array
+    Ain = np.zeros_like( max_ind, dtype=complex )
+    for i, index in enumerate( max_ind ):
+        if index in ind_drives:
+            Ain[i] = 0.5
+    
+    # Reconstruction section
+    λ_recon[F0_ind], f0_recon[F0_ind], κ0_recon[F0_ind], κ1_recon[F0_ind], Q_fit, Q = recon_nonlinear( A, Ain_fft, f )
+
+
+fig, ax = plt.subplots( 4 )
+ax[0].plot( F0_arr, λ_recon, '.-' )
+ax[1].plot( F0_arr, f0_recon, '.-' )
+ax[2].plot( F0_arr, κ0_recon, '.-' )
+ax[3].plot( F0_arr, κ1_recon, '.-' )
+ax[0].axhline( y=λ, linestyle='--', color='black' )
+ax[1].axhline( y=f0, linestyle='--', color='black' )
+ax[2].axhline( y=κ0, linestyle='--', color='black' )
+ax[3].axhline( y=κ1, linestyle='--', color='black' )
+ax[3].set_xlabel( '$F_0$ [a.u.]' )
+ax[0].set_ylabel( '$\lambda$' )
+ax[1].set_ylabel( '$f_0$' )
+ax[2].set_ylabel( '$\kappa_0$' )
+ax[3].set_ylabel( '$\kappa_1$' )
