@@ -420,14 +420,6 @@ ax[2].set_ylim( 1e-14, 100 )
 ax[2].legend()    
 
 
-for i in range( len(A) ):
-    if i not in max_ind:
-        A[i] = 0
-
-a = np.fft.ifft( A )
-a *= len(a)
-
-
 # Reconstruction section
 λ_recon, f0_recon, κ0_recon, κ1_recon, Q_fit, Q = recon_nonlinear( A, Ain, a, ain, f, max_ind )
 Q_recon = 1 / (2*κ0_recon)
@@ -457,7 +449,7 @@ print( f'Q_factor = {Q_factor:.5f}' )
 
 
 # "Power" values
-F0_arr = np.linspace(1, 100, 11)
+F0_arr = np.linspace(1, 10, 6)
 
 # Fit parameters
 λ_recon = np.zeros_like( F0_arr )
@@ -466,73 +458,29 @@ f0_recon =  np.zeros_like( F0_arr )
 κ1_recon = np.zeros_like( F0_arr )
 
 
+A = np.zeros( (len(F0_arr), N), dtype=np.complex )
+Ain = np.zeros_like( A )
+
+
 for F0_ind, F0_val in enumerate( F0_arr ):
-        
-    # Drive tones
-    drive = partial( imp_drive, f1=f1, f2=f2, F0=F0_val )
-    ddrive = partial( imp_drive_derivative, f1=f1, f2=f2, F0=F0_val )
     
-    # Integrator
-    o = ode( eom_nonlinear_real ).set_integrator( 'lsoda', atol=1e-12 , rtol=1e-12 )
-    o.set_f_params( f0, κ0, κ1, λ, drive, ddrive )
-    o.set_initial_value( y0, 0 )
+    # Simulation section
+    A[F0_ind], Ain[F0_ind], a_all, a, ain, f, t_all, t, drive, max_ind = nonlinear_simulation( f0, κ0, κ1, λ, f1, f2, F0_val )
     
-    # Time-domain solution
-    y_all = np.zeros(( len(t_all), len(y0) ))
-    for i,t in enumerate( t_all ):
-        o.integrate(t)
-        y_all[i] = o.y
-        
-    
-    # Merge the results onto the complex plane
-    a_all = y_all[:,0] + 1.0j*y_all[:,1]
-    
-    
-    # We save one oscillation once we reached the steady state
-    a = a_all[-N-1:-1]
-    t = t_all[-N-1:-1]
-    
-    # Fourier domain solution
-    A = np.fft.fft( a ) / len(a)
-    f = np.fft.fftfreq( len(t), d=dt )
-
-
-    # Indices of the amplitude minima
-    max_ind_pos = find_peaks( x = np.abs(A[:1000]),
-                          height = 1e-9,
-                          )
-    max_ind_neg = find_peaks( x = np.abs(A[-1000:-900]),
-                          height = 1e-8,
-                          )
-    
-    max_ind = np.append( max_ind_pos[0], len(A)-1000+max_ind_neg[0] )
-    
-    if verbose:
-        print( 'Number of peaks: ', len(max_ind) )
-
-    for i in range( len(A) ):
-        if i not in max_ind:
-            A[i] = 0
-    
-    ain_all = drive(t_all)
-    ain = ain_all[-N-1:-1]
-    
-    Ain_fft = np.fft.fft(ain)/len(ain)
-    
-    # Drives indices
-    ind_drives = np.array([ 954, 956, 19044, 19046 ])
-    
-    # Drives array
-    Ain = np.zeros_like( max_ind, dtype=complex )
-    for i, index in enumerate( max_ind ):
-        if index in ind_drives:
-            Ain[i] = 0.5
+    print( 'Number of peaks: ', len(max_ind) )
     
     # Reconstruction section
-    λ_recon[F0_ind], f0_recon[F0_ind], κ0_recon[F0_ind], κ1_recon[F0_ind], Q_fit, Q = recon_nonlinear( A, Ain_fft, f )
+    λ_recon[F0_ind], f0_recon[F0_ind], κ0_recon[F0_ind], κ1_recon[F0_ind], Q_fit, Q = recon_nonlinear( A[F0_ind], Ain[F0_ind], a, ain, f, max_ind )
 
 
-# Parameters as a function of power
+# Output field as a function of F0
+fig, ax = plt.subplots( 1 )
+for F0_ind, F0_val in enumerate(F0_arr[0:3]):
+    ax.semilogy( f, np.abs(A[F0_ind]), label=str(F0_val) )
+ax.legend( title='$F_0$' )
+
+
+# Parameters as a function of F0
 fig, ax = plt.subplots( 4 )
 ax[0].plot( F0_arr, λ_recon, '.-' )
 ax[1].plot( F0_arr, f0_recon, '.-' )
