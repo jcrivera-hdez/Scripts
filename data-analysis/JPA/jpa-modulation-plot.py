@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 
+plt.rcParams['axes.formatter.useoffset'] = False
+plt.rcParams['figure.constrained_layout.use'] = True
+
 
 def dB(Sjk):
     return 20 * np.log10(np.abs(Sjk))
@@ -15,19 +18,19 @@ def plotSjk(farr, Sjk):
 
 
 def groupdelayFromS(freqarr, Sjk, windowSize=3):
-    groupdelay = lambda x, y: np.abs(np.diff(x) / 2 / np.pi / y)
-    boxcar = lambda y, N: np.convolve(y, np.ones((N,)) / N, mode='valid')
 
-    df_ = np.mean(np.diff(freqarr))
-    phase_ = np.unwrap(np.angle(Sjk))
-    smoothphase_ = boxcar(phase_, windowSize)
-    tgd = groupdelay(smoothphase_, df_)
+    df = np.mean(np.diff(freqarr))
+    phase = np.unwrap(np.angle(Sjk))
+    smoothphase = np.zeros((len(bias_arr), len(freq_arr) - 2))
+    for idx in range(len(phase[:, 0])):
+        smoothphase[idx] = np.convolve(phase[idx, :], np.ones((windowSize,)) / windowSize, mode='valid')
+    gd_ = np.abs(np.diff(smoothphase, axis=1) / 2 / np.pi / df) * 1e9
 
-    lendiff_ = len(freqarr) - len(tgd)
+    lendiff = len(freqarr) - len(gd_)
 
-    fgd = freqarr[:-lendiff_] + df * lendiff_ / 2
+    freq_gd_ = freqarr[:-lendiff] + df * lendiff / 2
 
-    return {'fgd': fgd, 'tgd': tgd, 'phasegd': smoothphase_}
+    return {'freq_gd': freq_gd_, 'gd': gd_, 'phasegd': smoothphase}
 
 
 def plotgd(groupdelay, x_arr, y_arr, figure, axis, label):
@@ -70,26 +73,10 @@ with h5py.File(file, "r") as dataset:
     bias_arr = np.asarray(dataset[idx_str]["bias_arr"])
     S11_arr = np.asarray(dataset[idx_str]["s11_arr"])
 
-# Window size for smoothing the phase
-wsize = 3
-
-# Frequency step
-df = np.mean(np.diff(freq_arr))
-
-# Phase in rad
-phase = np.unwrap(np.angle(S11_arr))
-
-# Phase smoothed in rad
-smoothphase = np.zeros((len(bias_arr), len(freq_arr) - 2))
-for idx in range(len(phase[:, 0])):
-    smoothphase[idx] = np.convolve(phase[idx, :], np.ones((wsize,)) / wsize, mode='valid')
-
-# Group delay in ns
-gd = np.abs(np.diff(smoothphase, axis=1) / 2 / np.pi / df) * 1e9
-
-# Frequency for group delay plot
-lendiff = len(freq_arr) - len(gd[0])
-freq_gd = freq_arr[:-lendiff] + df * lendiff / 2
+# Group delay
+group_delay = groupdelayFromS(freq_arr, S11_arr)
+gd = group_delay['gd']
+freq_gd = group_delay['freq_gd']
 
 # Parameters values
 M = 7.65e-13  # H
@@ -106,9 +93,9 @@ plotgd(gd, flux_arr, freq_gd, fig1, ax1, 'flux')
 
 # Group delay at a given dc bias value
 bias_idx = 555
-fig2, ax = plt.subplots(1)
-ax.plot(freq_gd / 1e9, gd[bias_idx])
-ax.set_xlabel('frequency [GHz]')
-ax.set_ylabel('group delay [ns]')
-ax.set_title('DC bias ' + f'= {bias_arr[bias_idx]:.3f} V')
+fig2, ax2 = plt.subplots(1)
+ax2.plot(freq_gd / 1e9, gd[:, bias_idx])
+ax2.set_xlabel('frequency [GHz]')
+ax2.set_ylabel('group delay [ns]')
+ax2.set_title('DC bias ' + f'= {bias_arr[bias_idx]:.3f} V')
 plt.show()
