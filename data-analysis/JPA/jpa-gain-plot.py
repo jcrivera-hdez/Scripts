@@ -16,8 +16,6 @@ def plot_gain_cut(gain, farr, pump_val, bias_val, axis):
     axis.set_xlabel('frequency [GHz]')
     axis.set_ylabel('gain [dB]')
 
-    plt.show()
-
 
 def plot_gain(gain, x_arr, y_arr, figure, axis):
     xmin, xmax = np.min(x_arr), np.max(x_arr)
@@ -123,6 +121,7 @@ gain_arr = dB(usb_arr[1:]) - gain_ref
 # Plot background (no-pump) response
 fig0, ax0 = plt.subplots(1)
 plot_gain_cut(gain_ref, freq_arr, 0, bias_ref, ax0)
+plt.show()
 
 # Plot gain sweep for all pump powers
 plot_gainsweep(gain_arr, freq_arr, bias_arr)
@@ -131,6 +130,7 @@ plot_gainsweep(gain_arr, freq_arr, bias_arr)
 pump_idx = -1
 fig1, ax1 = plt.subplots(1)
 plot_gain(gain_arr[pump_idx], bias_arr, freq_arr, fig1, ax1)
+
 
 fig2, ax2 = plt.subplots(1)
 for pump_idx in range(nr_pump_pwr - 1):
