@@ -39,7 +39,6 @@ for h in range(0, len(Qi)):
     freq = fr[h, 0]
     ax.errorbar(n[h], Qi[h], yerr=Qi_err[h], fmt='o', label=str(np.round(freq * 1e-9, 3)) + ' GHz', markersize=10,
                 color='#6CB0E4')
-
 # ax.legend()
 ax.grid(which='both', axis='y', color='darkgrey')
 ax.grid(which='major', axis='x', color='darkgrey')
