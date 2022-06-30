@@ -242,11 +242,14 @@ def sweep_vna(f_start, f_stop, intbw, f_delta, p_in, Navg, verbose=False):
     # pha_arr = dframe["S21phase [deg]"].to_numpy()
 
     # Convert to complex
-    # s11 = 10**((1/20)*(dframe["S11mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S11phase [deg]"].to_numpy() * np.pi / 180 ))
+    # s11 = 10**((1/20)*(dframe["S11mag [dB]"].to_numpy())) * np.exp(
+    #    1j*(dframe["S11phase [deg]"].to_numpy() * np.pi / 180))
     s21 = 10 ** ((1 / 20) * (dframe["S21mag [dB]"].to_numpy())) * np.exp(
         1j * (dframe["S21phase [deg]"].to_numpy() * np.pi / 180))
-    # s12 = 10**((1/20)*(dframe["S12mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S12phase [deg]"].to_numpy() * np.pi / 180 ))
-    # s22 = 10**((1/20)*(dframe["S22mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S22phase [deg]"].to_numpy() * np.pi / 180 ))
+    # s12 = 10**((1/20)*(dframe["S12mag [dB]"].to_numpy())) * np.exp(
+    #    1j*(dframe["S12phase [deg]"].to_numpy() * np.pi / 180))
+    # s22 = 10**((1/20)*(dframe["S22mag [dB]"].to_numpy())) * np.exp(
+    #    1j*(dframe["S22phase [deg]"].to_numpy() * np.pi / 180))
 
     return {'freq_arr': freq_arr, 's11_arr': s21}
 
