@@ -9,30 +9,30 @@ import presto
 from presto import lockin, utils
 from presto.hardware import AdcFSample, AdcMode, DacFSample, DacMode
 
+
 ############################################################################
 # Saving methods
 
 # Save script function
-def save_script( folder, file, sample, myrun, myrun_attrs ):
-    
+def save_script(folder, file, sample, myrun, myrun_attrs):
     # Create folders if they do not exist
-    if not os.path.isdir( folder ):
-        os.makedirs( folder )
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
 
     # String handles
-    run_str = "{}/{}".format( sample, myrun )
-    source_str = "{}/{}/Source code".format( sample, myrun )
+    run_str = "{}/{}".format(sample, myrun)
+    source_str = "{}/{}/Source code".format(sample, myrun)
 
     # Read lines of the script
-    filename = inspect.getframeinfo( inspect.currentframe() ).filename
-    with open( filename, "r" ) as codefile:
+    filename = inspect.getframeinfo(inspect.currentframe()).filename
+    with open(filename, "r") as codefile:
         code_lines = codefile.readlines()
 
     # Write lines of script and run attributes
     with h5py.File(os.path.join(folder, file), "a") as savefile:
 
-        dt = h5py.special_dtype( vlen=str )
-        code_set = savefile.create_dataset( source_str.format(myrun), (len(code_lines),), dtype=dt )
+        dt = h5py.special_dtype(vlen=str)
+        code_set = savefile.create_dataset(source_str.format(myrun), (len(code_lines),), dtype=dt)
         for i in range(len(code_lines)):
             code_set[i] = code_lines[i]
 
@@ -42,26 +42,25 @@ def save_script( folder, file, sample, myrun, myrun_attrs ):
 
     # Debug
     print("Saved script and run attributes.")
-    
-    
+
+
 # Save data function
-def save_data( folder, file, sample, myrun, freq_arr, usb_arr ):
-    if not os.path.isdir( folder ):
-        os.makedirs( folder )
+def save_data(folder, file, sample, myrun, freq_arr, usb_arr):
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
 
     # Open the save file (.hdf5) in append mode
-    with h5py.File( os.path.join(folder, file ), "a") as savefile:
-                
+    with h5py.File(os.path.join(folder, file), "a") as savefile:
         # String as handles
-        freq_data_str = "{}/{}/freq sweep".format( sample, myrun )
-        usb_data_str = "{}/{}/USB".format( sample, myrun )
+        freq_data_str = "{}/{}/freq sweep".format(sample, myrun)
+        usb_data_str = "{}/{}/USB".format(sample, myrun)
 
         # Write data to datasets
-        savefile.create_dataset( freq_data_str, (np.shape(freq_arr)),
-                                 dtype=float, data=(freq_arr))
-        savefile.create_dataset( usb_data_str, (np.shape(usb_arr)),
-                                 dtype=complex, data=(usb_arr))
-        
+        savefile.create_dataset(freq_data_str, (np.shape(freq_arr)),
+                                dtype=float, data=freq_arr)
+        savefile.create_dataset(usb_data_str, (np.shape(usb_arr)),
+                                dtype=complex, data=usb_arr)
+
         # Write dataset attributes
         savefile[freq_data_str].attrs["Unit"] = "Hz"
         savefile[usb_data_str].attrs["Unit"] = "fsu complex"
@@ -73,7 +72,6 @@ save_file = r'test.hdf5'
 myrun = time.strftime("%Y-%m-%d_%H_%M_%S")
 t_start = time.strftime("%Y-%m-%d_%H_%M_%S")
 
-
 # Sample name and total attenuation along measurement chain
 sample = 'JPA'
 atten = 80
@@ -84,10 +82,10 @@ reverse = False
 fwd_and_rev = False
 
 # Lab Network
-ADDRESS = '130.237.35.90'   # from Office 
+ADDRESS = '130.237.35.90'  # from Office
 # PORT = 42870              # Vivace ALFA
 # PORT = 42871              # Vivace BRAVO
-PORT = 42873                # Presto DELTA
+PORT = 42873  # Presto DELTA
 
 if PORT == 42870:
     Box = 'Vivace ALFA'
@@ -95,7 +93,7 @@ elif PORT == 42871:
     Box = 'Vivace BETA'
 elif PORT == 42873:
     Box = 'Presto DELTA'
-    
+
 # Physical Ports
 input_port = 1
 output_port = 1
@@ -104,7 +102,6 @@ bias_port = 1
 
 # Pseudorandom noise (only when working with small amplitudes)
 dither = False
-
 
 # MEASUREMENT PARAMETERS
 # NCO frequency
@@ -119,31 +116,28 @@ Nskip = 10
 # DC bias in V
 bias_val = -0.33
 
-
 # SIGNAL PARAMETERS
 # Signal output amplitude from Vivace/Presto
-amp_sig = 0.05      # With current attenuation this correspond to -120 dBm
-
+amp_sig = 0.05  # With current attenuation this corresponds to -120 dBm
 
 # Instantiate lockin device
-with lockin.Lockin( address = ADDRESS,
-                    port = PORT,
-                    adc_mode = AdcMode.Mixed,
-                    adc_fsample = AdcFSample.G2,
-                    dac_mode = DacMode.Mixed02,
-                    dac_fsample = DacFSample.G6,
-                    ) as lck:
-    
+with lockin.Lockin(address=ADDRESS,
+                   port=PORT,
+                   adc_mode=AdcMode.Mixed,
+                   adc_fsample=AdcFSample.G2,
+                   dac_mode=DacMode.Mixed02,
+                   dac_fsample=DacFSample.G6,
+                   ) as lck:
     # Start timer
     t_start = time.strftime("%Y-%m-%d_%H_%M_%S")
-    
+
     # Print Presto version
     print("Presto version: " + presto.__version__)
-    
+
     # Set measurement comb
     fs_center = 4.2e9
     # tune center frequency
-    fs_center, df = lck.tune( fs_center, df )
+    fs_center, df = lck.tune(fs_center, df)
     fs_span = (200e6 / 2) // df * 2 * df
     fs_start = fs_center - fs_span / 2
     fs_stop = fs_center + fs_span / 2
@@ -152,78 +146,71 @@ with lockin.Lockin( address = ADDRESS,
     n_arr = np.arange(n_start, n_stop + 1)
     nr_freq = len(n_arr)
     freq_arr = df * n_arr - fNCO
-    
+
     # Data
-    usb_arr = np.zeros( nr_freq, dtype=np.complex128 )
-    
+    usb_arr = np.zeros(nr_freq, dtype=np.complex128)
+
     # Set DC bias
-    lck.hardware.set_dc_bias( -0.33, bias_port )
-    lck.hardware.sleep( 1.0, False )
-    
+    lck.hardware.set_dc_bias(-0.33, bias_port)
+    lck.hardware.sleep(1.0, False)
+
     # Configure mixer just to be able to create output and input groups
-    lck.hardware.configure_mixer( freq = fNCO,
-                                  in_ports = input_port,
-                                  out_ports = output_port,
-                                  sync = True,
-                                  )
-    
+    lck.hardware.configure_mixer(freq=fNCO,
+                                 in_ports=input_port,
+                                 out_ports=output_port,
+                                 sync=True,
+                                 )
+
     # Set df
-    lck.set_df( df )
-    
-   
+    lck.set_df(df)
+
     # Create output group for the signal frequency
-    og = lck.add_output_group( ports = output_port, nr_freq = 1 )
+    og = lck.add_output_group(ports=output_port, nr_freq=1)
     # Set the lock-in output amplitudes
-    og.set_amplitudes( amp_sig )
+    og.set_amplitudes(amp_sig)
     # Set the lock-in output phases
-    og.set_phases( phases = 0,
-                   phases_q = -np.pi/2 )
-    
+    og.set_phases(phases=0,
+                  phases_q=-np.pi / 2)
+
     # Create input group
-    ig = lck.add_input_group( port = input_port, nr_freq = 1 )
-    
+    ig = lck.add_input_group(port=input_port, nr_freq=1)
+
     # Add pseudorandom noise if needed
-    lck.set_dither( dither, output_port )
-    
+    lck.set_dither(dither, output_port)
+
     lck.apply_settings()
-    
-    
-    # Display a nice progress bar
-    with tqdm( total=(nr_freq), ncols=80 ) as pbar:
+
+    # Display nice progress bar
+    with tqdm(total=nr_freq, ncols=80) as pbar:
         # Signal frequency sweep
         for sig_ind, sig_val in enumerate(freq_arr):
-            
-            og.set_frequencies( sig_val )
-            ig.set_frequencies( sig_val )
-            
+            og.set_frequencies(sig_val)
+            ig.set_frequencies(sig_val)
+
             lck.apply_settings()
-            
+
             # Get lock-in packets (pixels) from the local buffer
-            data = lck.get_pixels( Nskip + Npix )
+            data = lck.get_pixels(Nskip + Npix)
             freqs, pixels_i, pixels_q = data[input_port]
-    
+
             # Convert a measured IQ pair into a low/high sideband pair
-            LSB, HSB = utils.untwist_downconversion( pixels_i[:,0], pixels_q[:,0] )
-    
+            LSB, HSB = utils.untwist_downconversion(pixels_i[:, 0], pixels_q[:, 0])
+
             # Store data in array
-            usb_arr[sig_ind] = np.mean( HSB[-Npix:] )
-            
+            usb_arr[sig_ind] = np.mean(HSB[-Npix:])
+
             # Update progress bar
             pbar.update(1)
-    
-   
+
     # Mute outputs at the end of the sweep
     og.set_amplitudes(0.0)
     lck.apply_settings()
     lck.hardware.set_dc_bias(0.0, bias_port)
 
-
 # Stop timer
 t_end = time.strftime("%Y-%m-%d_%H_%M_%S")
-        
-        
+
 # Create dictionary with attributes
-# Attributes for this run
 myrun_attrs = {"Meas": 'gain',
                "Instr": Box,
                "T": temperature,
@@ -247,9 +234,7 @@ myrun_attrs = {"Meas": 'gain',
                }
 
 # Save script and attributes    
-save_script( save_folder, save_file, sample, myrun, myrun_attrs )
+save_script(save_folder, save_file, sample, myrun, myrun_attrs)
 
 # Save data
-save_data(save_folder, save_file, sample, myrun, freq_arr+fNCO, usb_arr )
-    
-    
+save_data(save_folder, save_file, sample, myrun, freq_arr + fNCO, usb_arr)
