@@ -39,13 +39,13 @@ myVNA = rm.open_resource('TCPIP0::DESKTOP-HCDF01N::hislip0::INSTR')
 
 # Headers for VNA data processing
 headers = ['Frequency [Hz]', 'S11mag [dB]', 'S11phase [deg]', 'S21mag [dB]',
-'S21phase [deg]', 'S12mag [dB]', 'S12phase [deg]', 'S22mag [dB]', 'S22phase [deg]']
+           'S21phase [deg]', 'S12mag [dB]', 'S12phase [deg]', 'S22mag [dB]', 'S22phase [deg]']
+
 
 ############################################################################
 # VNA methods
 
 def save_script(folder, file, sample, myrun, myrun_attrs, verbose=False):
-    
     # Create folders if they do not exist
     if not os.path.isdir(folder):
         os.makedirs(folder)
@@ -76,11 +76,10 @@ def save_script(folder, file, sample, myrun, myrun_attrs, verbose=False):
 
 
 def save_data(folder, file, sample, myrun, freq_arr, s21_arr, power_arr, verbose=False):
-    
     # Create folders if they do not exist
     if not os.path.isdir(folder):
         os.makedirs(folder)
-    
+
     # String handles
     freq_data_str = "{}/{}/freq_arr".format(sample, myrun)
     s21_data_str = "{}/{}/s11_arr".format(sample, myrun)
@@ -88,10 +87,10 @@ def save_data(folder, file, sample, myrun, freq_arr, s21_arr, power_arr, verbose
 
     # Open the save file (.hdf5) in append mode
     with h5py.File(os.path.join(folder, file), "a") as savefile:
-        savefile.create_dataset(freq_data_str, (np.shape(freq_arr)), dtype=np.float64, data=(freq_arr))
-        savefile.create_dataset(s21_data_str, (np.shape(s21_arr)),  dtype=np.complex64, data=(s21_arr))
-        savefile.create_dataset(power_data_str, (np.shape(power_arr)),  dtype=np.float64, data=(power_arr))
-        
+        savefile.create_dataset(freq_data_str, (np.shape(freq_arr)), dtype=np.float64, data=freq_arr)
+        savefile.create_dataset(s21_data_str, (np.shape(s21_arr)), dtype=np.complex64, data=s21_arr)
+        savefile.create_dataset(power_data_str, (np.shape(power_arr)), dtype=np.float64, data=power_arr)
+
         # Write dataset attributes
         savefile[freq_data_str].attrs["Unit"] = "Hz"
         savefile[power_data_str].attrs["Unit"] = "fsu"
@@ -101,7 +100,6 @@ def save_data(folder, file, sample, myrun, freq_arr, s21_arr, power_arr, verbose
 
 
 def setup_vna(verbose=False):
-    
     # standard settings
     myVNA.timeout = 10000
     myVNA.write("*CLS")
@@ -109,7 +107,7 @@ def setup_vna(verbose=False):
 
     if verbose:
         print("VNA identification: {}".format(myVNA.read()))
-        
+
     # Reset VNA settings
     myVNA.write("SYSTem:PRESet")
     myVNA.write("FORM:DATA ASCii,0")
@@ -117,7 +115,7 @@ def setup_vna(verbose=False):
     # Setup a S21
     myVNA.write("CALCulate1:MEASure1:PARameter 'S21'")
     myVNA.write("SENSe1:SWE:MODE HOLD")
-    
+
     # Set sweep generation mode to analog
     myVNA.write("SENSe1:SWEep:GENeration ANAL")
 
@@ -127,46 +125,47 @@ def setup_vna(verbose=False):
 
 
 def sweep_vna(f_start, f_stop, intbw, f_delta, p_in, Navg, verbose=False):
-    
     # Check
     if f_stop <= f_start:
-        raise ValueError("f_stop needs to be larger than f_start. Current values are f_start = {} GHz, f_stop = {} GHz".format(f_start, f_stop))
-    
+        raise ValueError(
+            "f_stop needs to be larger than f_start. Current values are f_start = {} GHz, f_stop = {} GHz".format(
+                f_start, f_stop))
+
     # Points in frequency array, adjust f_stops
     Npts = int((f_stop * 1e+9 - f_start * 1e+9) / f_delta)
-    
+
     # VNA limitation: Npts cannot exceed 100_001
     if Npts > 100_001:
         raise ValueError("Npts cannot exceed 100001. It is {}".format(Npts))
-    
+
     # Update f_stop
     f_stop = (f_start * 1e+9 + Npts * f_delta) / 1e+9
-    
+
     # power
     if verbose:
         print(f"Set power: {p_in} dBm")
-    
+
     ############################################################################
     # Setup VNA
-    
+
     # Reset VNA settings
     myVNA.write("SYSTem:FPRESet")
     myVNA.write("FORM:DATA ASCii,0")
-    
+
     # Setup Sij for two-port devices
     myVNA.write("CALC1:PAR:DEF:EXT 'ch1_S11', 'S11'")
     myVNA.write("CALC1:PAR:DEF:EXT 'ch1_S21', 'S21'")
-    
+
     # Setup windows
     myVNA.write("DISP:WIND1:STAT ON")
-    
+
     # Setup traces in windows
     myVNA.write("DISPlay:WIND1:TRACe1:FEED 'ch1_S11'")
     myVNA.write("DISPlay:WIND1:TRACe2:FEED 'ch1_S21'")
-    
+
     # Hold trigger
     myVNA.write("SENSe1:SWE:MODE HOLD")
-        
+
     # Apply sweep settings
     myVNA.write("SENSe1:BANDwidth {}".format(intbw))
     myVNA.write("SENSe1:FREQuency:START {}ghz".format(f_start))
@@ -177,15 +176,15 @@ def sweep_vna(f_start, f_stop, intbw, f_delta, p_in, Navg, verbose=False):
     myVNA.write("SENSe1:AVERage:STATe ON")
     myVNA.write("SENSe1:AVERage:COUNt {}".format(int(Navg)))
     myVNA.write("SENSe1:SWEep:GENeration ANAL")
-       
+
     # Debug
-    if verbose: 
+    if verbose:
         print("VNA setup for S21 sweep")
-    
+
     # Headers for VNA data processing
     headers = ['Frequency [Hz]', 'S11mag [dB]', 'S11phase [deg]', 'S21mag [dB]',
-    'S21phase [deg]', 'S12mag [dB]', 'S12phase [deg]', 'S22mag [dB]', 'S22phase [deg]']
-      
+               'S21phase [deg]', 'S12mag [dB]', 'S12phase [deg]', 'S22mag [dB]', 'S22phase [deg]']
+
     # Sweep time
     myVNA.write("SENSe1:SWEep:TIME:AUTO ON")
     myVNA.write("SENSe1:SWEep:TYPE LIN")
@@ -193,49 +192,53 @@ def sweep_vna(f_start, f_stop, intbw, f_delta, p_in, Navg, verbose=False):
     sweeptime = round(float(myVNA.read()), 3)
     if verbose:
         print("Sweep time of {} s".format(sweeptime))
-    
+
     # Start sweep
     myVNA.write("SENS:SWE:MODE SING")
     if verbose:
         print("Sweep started")
-    
+
     # Polling
     sweepdone = False
     myVNA.write("*ESE 1")
     myVNA.write("*CLS")
     myVNA.write("*OPC")
-    while (not sweepdone):
+    while not sweepdone:
         x = myVNA.query("*ESR?")
         sweepdone = int(x.strip("+-\n"))
         time.sleep(0.1)
-    if verbose: 
+    if verbose:
         print("Sweep completed")
-    
+
     # Read data in Touchstone format
     myVNA.write("CALC1:MEAS1:DATA:SNP? 2")
     time.sleep(0.1)
     snp = myVNA.read()
     if verbose:
         print("Read data")
-    
+
     # Process data
     snplst = snp.split(',')
     lst = list(map(list, zip(*([iter(snplst)] * Npts))))
     datalst = [list(map(float, sublst)) for sublst in lst]
-    dframe = pd.DataFrame(datalst, index = headers).T
-    
+    dframe = pd.DataFrame(datalst, index=headers).T
+
     # Convert data to numpy arrays
     freq_arr = dframe["Frequency [Hz]"].to_numpy()
     # amp_arr = dframe["S21mag [dB]"].to_numpy()
     # pha_arr = dframe["S21phase [deg]"].to_numpy()
-    
-    # Convert to complex
-    # s11 = 10**((1/20)*(dframe["S11mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S11phase [deg]"].to_numpy() * np.pi / 180 ))
-    s21 = 10**((1/20)*(dframe["S21mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S21phase [deg]"].to_numpy() * np.pi / 180 ))
-    # s12 = 10**((1/20)*(dframe["S12mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S12phase [deg]"].to_numpy() * np.pi / 180 ))
-    # s22 = 10**((1/20)*(dframe["S22mag [dB]"].to_numpy())) * np.exp(1j*(dframe["S22phase [deg]"].to_numpy() * np.pi / 180 ))
 
-    return { 'freq_arr':freq_arr, 's11_arr':s21 }
+    # Convert to complex
+    # s11 = 10 ** ((1 / 20) * (dframe["S11mag [dB]"].to_numpy())) * np.exp(
+    #     1j * (dframe["S11phase [deg]"].to_numpy() * np.pi / 180))
+    s21 = 10 ** ((1 / 20) * (dframe["S21mag [dB]"].to_numpy())) * np.exp(
+        1j * (dframe["S21phase [deg]"].to_numpy() * np.pi / 180))
+    # s12 = 10 ** ((1 / 20) * (dframe["S12mag [dB]"].to_numpy())) * np.exp(
+    #     1j * (dframe["S12phase [deg]"].to_numpy() * np.pi / 180))
+    # s22 = 10 ** ((1 / 20) * (dframe["S22mag [dB]"].to_numpy())) * np.exp(
+    #     1j * (dframe["S22phase [deg]"].to_numpy() * np.pi / 180))
+
+    return {'freq_arr': freq_arr, 's11_arr': s21}
 
 
 def disconnect_vna(verbose=False):
@@ -257,7 +260,6 @@ f_delta = 1e+6
 Navg = 10
 Npts = int((f_stop * 1e+9 - f_start * 1e+9) / f_delta)
 
-
 ############################################################################
 
 verbose = False
@@ -268,22 +270,21 @@ setup_vna(verbose)
 
 # Power values
 power_arr = np.linspace(-43, 0, 10)
-s11_arr = np.zeros( (len(power_arr), Npts), dtype=complex )                                                                  
+s11_arr = np.zeros((len(power_arr), Npts), dtype=complex)
 
 # loop over input power
-with tqdm( total=len(power_arr), ncols=80 ) as pbar:
-    for power_idx, power_val in enumerate( power_arr ):
-        
+with tqdm(total=len(power_arr), ncols=80) as pbar:
+    for power_idx, power_val in enumerate(power_arr):
         # VNA frequency sweep
-        data = sweep_vna( f_start, f_stop, intbw, f_delta, power_val, Navg, verbose )
+        data = sweep_vna(f_start, f_stop, intbw, f_delta, power_val, Navg, verbose)
         freq_arr = data['freq_arr']
         s11_arr[power_idx] = data['s21']
-        
+
         pbar.update(1)
 
 # Save data
 save_data(save_folder, save_file, sample, myrun, freq_arr, s11_arr, power_arr, verbose)
-        
+
 # disconnect VNA
 disconnect_vna(verbose)
 
@@ -301,7 +302,7 @@ myrun_attrs = {"Meas": "S21-sweep_p-sweep",
                "RT-amp_in": 0,
                "Comment": comment_str,
                "intbw": intbw,
-               "delta_f" : f_delta,
+               "delta_f": f_delta,
                "Npoints": Npts,
                "Navg": Navg,
                "f_start": f_start,
