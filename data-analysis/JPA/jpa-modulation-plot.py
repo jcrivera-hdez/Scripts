@@ -26,7 +26,7 @@ def groupdelayFromS(freqarr, Sjk, windowSize=3):
         smoothphase[idx] = np.convolve(phase[idx, :], np.ones((windowSize,)) / windowSize, mode='valid')
     gd_ = np.abs(np.diff(smoothphase, axis=1) / 2 / np.pi / df) * 1e9
 
-    lendiff = len(freqarr) - len(gd_)
+    lendiff = len(freqarr) - len(gd_[0])
 
     freq_gd_ = freqarr[:-lendiff] + df * lendiff / 2
 
@@ -62,8 +62,8 @@ def plotgd(groupdelay, x_arr, y_arr, figure, axis, label):
 
 # Load data
 file = r'D:\JPA\JPA-Data\QuantumGarage-JPA.hdf5'
-cooldown = '2022-06-07'
-run = '2022-06-07_17_01_41'
+cooldown = '2022-06-30'
+run = '2022-06-30_10_46_33'
 idx_str = "{}/{}".format(cooldown, run)
 
 # Open hdf5 file
@@ -94,7 +94,7 @@ plotgd(gd, flux_arr, freq_gd, fig1, ax1, 'flux')
 # Group delay at a given dc bias value
 bias_idx = 555
 fig2, ax2 = plt.subplots(1)
-ax2.plot(freq_gd / 1e9, gd[:, bias_idx])
+ax2.plot(freq_gd / 1e9, gd[bias_idx])
 ax2.set_xlabel('frequency [GHz]')
 ax2.set_ylabel('group delay [ns]')
 ax2.set_title('DC bias ' + f'= {bias_arr[bias_idx]:.3f} V')
