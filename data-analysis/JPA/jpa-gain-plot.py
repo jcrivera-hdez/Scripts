@@ -101,14 +101,14 @@ nr_bias = len(bias_arr)
 bias_idx = 55
 
 # Load data    
-run = '2022-06-09_10_46_19'
+run = '2022-07-04_09_46_55'
 idx_str = "{}/{}".format(cooldown, run)
 
 # Open hdf5 file
 with h5py.File(file, "r") as dataset:
     # Attributes
     df_ref = dataset[idx_str].attrs["df"]
-    bias_ref = dataset[idx_str].attrs["DC bias"][0]
+    bias_ref = dataset[idx_str].attrs["DC bias"]
 
     # Data
     freq_ref_arr = np.asarray(dataset[idx_str]["freq sweep"])
