@@ -107,14 +107,14 @@ dither = False
 # NCO frequency
 fNCO = 4.2e9
 # Bandwidth in Hz
-df = 5e3
+df = 15e3
 # Number of pixels
-Npix = 500
+Npix = 5000
 # Number pf pixels we discard
 Nskip = 10
 
 # DC bias in V
-bias_val = -0.33
+bias_val = 0
 
 # SIGNAL PARAMETERS
 # Signal output amplitude from Vivace/Presto
@@ -151,7 +151,7 @@ with lockin.Lockin(address=ADDRESS,
     usb_arr = np.zeros(nr_freq, dtype=np.complex128)
 
     # Set DC bias
-    lck.hardware.set_dc_bias(-0.33, bias_port)
+    lck.hardware.set_dc_bias(bias_val, bias_port)
     lck.hardware.sleep(1.0, False)
 
     # Configure mixer just to be able to create output and input groups
