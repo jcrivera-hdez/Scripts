@@ -81,8 +81,8 @@ def plot_gainsweep(gain_arr_, freq_arr_, bias_arr_):
 
 # Load data
 file = r'D:\JPA\JPA-Data\QuantumGarage-JPA.hdf5'
-cooldown = r'2022-06-07'
-run = '2022-06-09_17_23_32'
+cooldown = r'2022-06-30'
+run = '2022-07-01_12_00_50'
 idx_str = "{}/{}".format(cooldown, run)
 
 # Open hdf5 file
