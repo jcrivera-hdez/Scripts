@@ -91,5 +91,3 @@ for h in range(0, len(Qi)):
 ax.set_xlabel('VNA output power [dBm]', fontsize=24)
 ax.set_ylabel(r'$\langle n\rangle$', fontsize=24)
 plt.show()
-
-test = True
