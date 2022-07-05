@@ -57,8 +57,6 @@ def plotgd(groupdelay, x_arr, y_arr, figure, axis, label):
         axis.set_xlabel("DC bias [V]")
     axis.set_ylabel("Frequency [GHz]")
 
-    plt.show()
-
 
 # Load data
 file = r'D:\JPA\JPA-Data\QuantumGarage-JPA.hdf5'
@@ -98,4 +96,3 @@ ax2.plot(freq_gd / 1e9, gd[bias_idx])
 ax2.set_xlabel('frequency [GHz]')
 ax2.set_ylabel('group delay [ns]')
 ax2.set_title('DC bias ' + f'= {bias_arr[bias_idx]:.3f} V')
-plt.show()
