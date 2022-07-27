@@ -53,22 +53,10 @@ fig, ax = plt.subplots(figsize=(15, 10))
 for h in range(0, len(Qi)):
     freq = fr[h, 0]
     ax.plot(power[h] + 55, fr[h], 'o', label=str(np.round(freq * 1e-9, 3)) + ' GHz', markersize=10, color='#6CB0E4')
-ax.set_xlabel('VNA output ower [dBm]', fontsize=24)
+ax.set_xlabel('VNA output power [dBm]', fontsize=24)
 ax.set_ylabel('$f_r$', fontsize=24)
 
 # %% n vs P
-
-fig, ax = plt.subplots(figsize=(15, 10))
-ax.set_yscale('log')
-
-for h in range(0, len(Qi)):
-    freq = fr[h, 0]
-    ax.plot(power[h] + 55, n[h], 'o', label=str(np.round(freq * 1e-9, 3)) + ' GHz', markersize=10, color='#6CB0E4')
-
-ax.set_xlabel('VNA output power [dBm]', fontsize=24)
-ax.set_ylabel(r'$\langle n\rangle$', fontsize=24)
-
-# %% 
 
 # Manually calculating photons number.
 
@@ -85,8 +73,8 @@ ax.set_yscale('log')
 
 for h in range(0, len(Qi)):
     freq = fr[h, 0]
+    # ax.plot(power[h] + 55, n[h], 'o', label=str(np.round(freq * 1e-9, 3)) + ' GHz', markersize=10, color='#6CB0E4')
     ax.plot(power[h] + 55, nphot[h], 'o', label=str(np.round(freq * 1e-9, 3)) + ' GHz', markersize=10, color='#6CB0E4')
-    # ax.plot(power[h]+55,n[h],'o',label=str(np.round(freq*1e-9,3))+' GHz', markersize=10)
 
 ax.set_xlabel('VNA output power [dBm]', fontsize=24)
 ax.set_ylabel(r'$\langle n\rangle$', fontsize=24)
