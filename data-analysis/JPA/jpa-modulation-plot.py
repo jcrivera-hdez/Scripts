@@ -60,8 +60,8 @@ def plotgd(groupdelay, x_arr, y_arr, figure, axis, label):
 
 # Load data
 file = r'D:\JPA\JPA-Data\QuantumGarage-JPA.hdf5'
-cooldown = '2022-06-30'
-run = '2022-06-30_10_46_33'
+cooldown = '2022-07-28'
+run = '2022-07-28_15_25_40'
 idx_str = "{}/{}".format(cooldown, run)
 
 # Open hdf5 file
