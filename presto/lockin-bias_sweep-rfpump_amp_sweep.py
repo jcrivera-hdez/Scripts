@@ -109,12 +109,12 @@ flux_port = 5
 bias_port = 1
 
 # Pseudorandom noise (only when working with small amplitudes)
-dither = True
+dither = False
 
 # DC BIAS PARAMETERS
 # DC bias values in Volts
-bias_min = -0.93
-bias_max = -0.88
+bias_min = 0.22
+bias_max = 0.26
 nr_bias = 101
 bias_arr = np.linspace(bias_min, bias_max, nr_bias)
 
@@ -124,7 +124,7 @@ fNCO = 4.2e9
 # Bandwidth in Hz
 df = 15e3
 # Number of pixels
-Npix = 100
+Npix = 90
 # Number pf pixels we discard
 Nskip = 10
 
@@ -149,6 +149,7 @@ with lockin.Lockin(address=ADDRESS,
                    dac_mode=[DacMode.Mixed02, DacMode.Mixed04, DacMode.Mixed02, DacMode.Mixed02],
                    dac_fsample=[DacFSample.G6, DacFSample.G10, DacFSample.G6, DacFSample.G6],
                    ) as lck:
+
     # Start timer
     t_start = time.strftime("%Y-%m-%d_%H_%M_%S")
 
@@ -284,7 +285,7 @@ myrun_attrs = {"Meas": 'gain',
                "Script name": os.path.basename(__file__),
                }
 
-# Save script and attributes    
+# Save script and attributes
 save_script(save_folder, save_file, sample, myrun, myrun_attrs)
 
 # Save data
