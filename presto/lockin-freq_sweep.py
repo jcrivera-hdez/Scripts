@@ -111,14 +111,14 @@ df = 15e3
 # Number of pixels
 Npix = 5000
 # Number pf pixels we discard
-Nskip = 10
+Nskip = 1
 
 # DC bias in V
 bias_val = 0
 
 # SIGNAL PARAMETERS
 # Signal output amplitude from Vivace/Presto
-amp_sig = 0.05  # With current attenuation this corresponds to -120 dBm
+amp_sig = 0.05
 
 # Instantiate lockin device
 with lockin.Lockin(address=ADDRESS,
